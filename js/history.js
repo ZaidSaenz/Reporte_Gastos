@@ -1,224 +1,417 @@
 // ============================================================
-// FORMATO DE PRECIOS Y HORARIOS
+// DASHBOARD AND EXPENSE HISTORY
 // ============================================================
 
-function formatearMoneda(valor) {
-  return new Intl.NumberFormat(
-    "es-MX",
-    {
-      style: "currency",
-      currency: "MXN"
-    }
-  ).format(valor);
+function getStartOfWeek(date = new Date()) {
+  const result = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  const day =
+    result.getDay() || 7;
+
+  result.setDate(
+    result.getDate() - day + 1
+  );
+
+  return result;
 }
 
-
-function formatearHora(fechaISO) {
-  return new Intl.DateTimeFormat(
-    "es-MX",
-    {
-      hour: "2-digit",
-      minute: "2-digit"
-    }
-  ).format(
-    new Date(fechaISO)
+function getStartOfMonth(date = new Date()) {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    1
   );
 }
 
+function getExpensesFromDate(
+  expenses,
+  startDate
+) {
+  const startKey =
+    getLocalDateKey(startDate);
 
-// ============================================================
-// RESUMEN DEL DÍA
-// ============================================================
+  const todayKey =
+    getLocalDateKey();
 
-function calcularResumenDia(ventas) {
-  return ventas.reduce(
-    (resumen, venta) => {
-      resumen.ventas += 1;
-
-      resumen.piezas +=
-        venta.productos.reduce(
-          (total, item) =>
-            total + item.cantidad,
-          0
-        );
-
-      resumen.total += venta.total;
-
-      return resumen;
-    },
-    {
-      ventas: 0,
-      piezas: 0,
-      total: 0
-    }
+  return expenses.filter(
+    (expense) =>
+      expense.date >= startKey &&
+      expense.date <= todayKey
   );
 }
 
+function calculateDashboardSummary(
+  expenses
+) {
+  const todayKey =
+    getLocalDateKey();
 
-function crearResumenItem(valor, etiqueta) {
-  const contenedor =
+  return {
+    today: calculateExpenseTotal(
+      expenses.filter(
+        (expense) =>
+          expense.date === todayKey
+      )
+    ),
+
+    week: calculateExpenseTotal(
+      getExpensesFromDate(
+        expenses,
+        getStartOfWeek()
+      )
+    ),
+
+    month: calculateExpenseTotal(
+      getExpensesFromDate(
+        expenses,
+        getStartOfMonth()
+      )
+    )
+  };
+}
+
+function createSummaryItem(
+  value,
+  label
+) {
+  const container =
     document.createElement("div");
 
-  const textoValor =
+  const valueElement =
     document.createElement("strong");
 
-  const textoEtiqueta =
+  const labelElement =
     document.createElement("span");
 
-  contenedor.className =
-    "resumen-item";
+  container.className =
+    "summary-item";
 
-  textoValor.textContent =
-    valor;
+  valueElement.textContent =
+    formatCurrency(value);
 
-  textoEtiqueta.textContent =
-    etiqueta;
+  labelElement.textContent =
+    label;
 
-  contenedor.append(
-    textoValor,
-    textoEtiqueta
+  container.append(
+    valueElement,
+    labelElement
   );
 
-  return contenedor;
+  return container;
 }
 
+function renderDashboardSummary(
+  expenses
+) {
+  const container =
+    document.querySelector(
+      "#expense-summary"
+    );
 
-function renderizarResumenDia(ventas) {
-  const contenedor =
-    document.querySelector("#resumen-dia");
+  if (!container) {
+    return;
+  }
 
-  const resumen =
-    calcularResumenDia(ventas);
+  const summary =
+    calculateDashboardSummary(
+      expenses
+    );
 
-  contenedor.replaceChildren(
-    crearResumenItem(
-      resumen.ventas,
-      "Ventas"
+  container.replaceChildren(
+    createSummaryItem(
+      summary.today,
+      t("dashboard.today")
     ),
-
-    crearResumenItem(
-      resumen.piezas,
-      "Piezas"
+    createSummaryItem(
+      summary.week,
+      t("dashboard.week")
     ),
-
-    crearResumenItem(
-      formatearMoneda(resumen.total),
-      "Total"
+    createSummaryItem(
+      summary.month,
+      t("dashboard.month")
     )
   );
 }
 
+function groupExpensesByDate(expenses) {
+  return expenses.reduce(
+    (groups, expense) => {
+      if (!groups.has(expense.date)) {
+        groups.set(
+          expense.date,
+          []
+        );
+      }
 
-// ============================================================
-// HISTORIAL DEL DÍA
-// ============================================================
+      groups
+        .get(expense.date)
+        .push(expense);
 
-function renderizarHistorialDia(
-  ventas,
-  alBorrarVenta
+      return groups;
+    },
+    new Map()
+  );
+}
+
+function createExpenseHistoryCard(
+  expense,
+  {
+    onEdit,
+    onDelete
+  }
 ) {
-  const contenedor =
-    document.querySelector("#historial-dia");
+  const card =
+    document.createElement("article");
 
-  contenedor.replaceChildren();
+  const header =
+    document.createElement("div");
 
-  if (ventas.length === 0) {
-    const mensaje =
+  const time =
+    document.createElement("span");
+
+  const amount =
+    document.createElement("strong");
+
+  const category =
+    document.createElement("p");
+
+  const description =
+    document.createElement("p");
+
+  const actions =
+    document.createElement("div");
+
+  const editButton =
+    document.createElement("button");
+
+  const deleteButton =
+    document.createElement("button");
+
+  card.className =
+    "expense-history-card";
+
+  header.className =
+    "expense-history-card__header";
+
+  time.className =
+    "expense-history-card__time";
+
+  amount.className =
+    "expense-history-card__amount";
+
+  category.className =
+    "expense-history-card__category";
+
+  description.className =
+    "expense-history-card__description";
+
+  actions.className =
+    "expense-history-card__actions";
+
+  editButton.type = "button";
+  editButton.className =
+    "button button--small button--secondary";
+  editButton.textContent =
+    t("history.edit");
+
+  deleteButton.type = "button";
+  deleteButton.className =
+    "button button--small button--danger";
+  deleteButton.textContent =
+    t("history.delete");
+
+  time.textContent =
+    formatTime(expense.createdAt);
+
+  amount.textContent =
+    formatCurrency(expense.amount);
+
+  category.textContent =
+    getExpenseCategoryLabel(expense);
+
+  description.textContent =
+    expense.description ||
+    t("history.noDescription");
+
+  editButton.addEventListener(
+    "click",
+    () => onEdit(expense.id)
+  );
+
+  deleteButton.addEventListener(
+    "click",
+    () => onDelete(expense.id)
+  );
+
+  header.append(
+    time,
+    amount
+  );
+
+  actions.append(
+    editButton,
+    deleteButton
+  );
+
+  card.append(
+    header,
+    category,
+    description,
+    actions
+  );
+
+  return card;
+}
+
+function createHistoryDayGroup(
+  dateKey,
+  expenses,
+  callbacks,
+  openByDefault
+) {
+  const details =
+    document.createElement("details");
+
+  const summary =
+    document.createElement("summary");
+
+  const dateLabel =
+    document.createElement("span");
+
+  const total =
+    document.createElement("strong");
+
+  const list =
+    document.createElement("div");
+
+  const footer =
+    document.createElement("div");
+
+  const copyButton =
+    document.createElement("button");
+
+  details.className =
+    "history-day";
+
+  details.open =
+    Boolean(openByDefault);
+
+  summary.className =
+    "history-day__summary";
+
+  dateLabel.textContent =
+    formatCompactDate(dateKey);
+
+  total.textContent =
+    formatCurrency(
+      calculateExpenseTotal(expenses)
+    );
+
+  list.className =
+    "history-day__list";
+
+  footer.className =
+    "history-day__footer";
+
+  copyButton.type = "button";
+  copyButton.className =
+    "button button--secondary button--small";
+  copyButton.textContent =
+    t("history.copy");
+
+  expenses.forEach(
+    (expense) => {
+      list.append(
+        createExpenseHistoryCard(
+          expense,
+          callbacks
+        )
+      );
+    }
+  );
+
+  copyButton.addEventListener(
+    "click",
+    () =>
+      callbacks.onCopy(
+        dateKey,
+        expenses
+      )
+  );
+
+  summary.append(
+    dateLabel,
+    total
+  );
+
+  footer.append(copyButton);
+
+  details.append(
+    summary,
+    list,
+    footer
+  );
+
+  return details;
+}
+
+function renderExpenseHistory(
+  expenses,
+  callbacks
+) {
+  const container =
+    document.querySelector(
+      "#expense-history"
+    );
+
+  if (!container) {
+    return;
+  }
+
+  container.replaceChildren();
+
+  if (expenses.length === 0) {
+    const message =
       document.createElement("p");
 
-    mensaje.className =
-      "sin-registros";
+    message.className =
+      "empty-state";
 
-    mensaje.textContent =
-      "Todavía no hay ventas guardadas hoy.";
+    message.textContent =
+      t("history.empty");
 
-    contenedor.append(mensaje);
+    container.append(message);
 
     return;
   }
 
-  ventas.forEach((venta) => {
-    const tarjeta =
-      document.createElement("article");
+  const groupedExpenses =
+    groupExpensesByDate(expenses);
 
-    const encabezado =
-      document.createElement("div");
-
-    const hora =
-      document.createElement("span");
-
-    const total =
-      document.createElement("strong");
-
-    const lista =
-      document.createElement("ul");
-
-    const botonBorrar =
-      document.createElement("button");
-
-    tarjeta.className =
-      "venta-historial";
-
-    encabezado.className =
-      "venta-historial-encabezado";
-
-    hora.className =
-      "venta-historial-hora";
-
-    total.className =
-      "venta-historial-total";
-
-    lista.className =
-      "venta-productos";
-
-    botonBorrar.className =
-      "btn-borrar-venta";
-
-    botonBorrar.type =
-      "button";
-
-    hora.textContent =
-      formatearHora(venta.fechaISO);
-
-    total.textContent =
-      formatearMoneda(venta.total);
-
-    botonBorrar.textContent =
-      "Borrar venta";
-
-    venta.productos.forEach((item) => {
-      const elemento =
-        document.createElement("li");
-
-      const piezas =
-        item.cantidad === 1
-          ? "pieza"
-          : "piezas";
-
-      elemento.textContent =
-        `${item.producto} · ` +
-        `${item.cantidad} ${piezas} · ` +
-        `${formatearMoneda(item.precio)} c/u`;
-
-      lista.append(elemento);
-    });
-
-    botonBorrar.addEventListener(
-      "click",
-      () => alBorrarVenta(venta.id)
-    );
-
-    encabezado.append(
-      hora,
-      total
-    );
-
-    tarjeta.append(
-      encabezado,
-      lista,
-      botonBorrar
-    );
-
-    contenedor.append(tarjeta);
-  });
+  [
+    ...groupedExpenses.entries()
+  ]
+    .sort(
+      ([leftDate], [rightDate]) =>
+        rightDate.localeCompare(leftDate)
+    )
+    .forEach(
+    (
+      [dateKey, dayExpenses],
+      index
+    ) => {
+      container.append(
+        createHistoryDayGroup(
+          dateKey,
+          dayExpenses,
+          callbacks,
+          index === 0
+        )
+      );
+    }
+  );
 }
