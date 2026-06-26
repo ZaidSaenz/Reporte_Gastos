@@ -6,7 +6,7 @@ const CACHE_PREFIX =
   "expense-tracker";
 
 const CACHE_VERSION =
-  "v1";
+  "v2";
 
 const CACHE_NAME =
   `${CACHE_PREFIX}-${CACHE_VERSION}`;
