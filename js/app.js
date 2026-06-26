@@ -1,886 +1,756 @@
 // ============================================================
-// TEXTOS VISIBLES DE LA INTERFAZ
-// ============================================================
-//
-// Si después el cliente desea una versión más formal,
-// podemos cambiar estas frases sin modificar la lógica.
-//
+// EXPENSE TRACKER APPLICATION
 // ============================================================
 
-const TEXTOS_UI = {
-  ventaGuardada:
-    "Venta guardada correctamente.",
-
-  ventaRapidaGuardada:
-    "Se agregó otra igual: 1 pieza.",
-
-  errorProducto:
-    "Elige un producto antes de guardar.",
-
-  errorPrecio:
-    "Revisa el precio. Puedes escribir coma o punto.",
-
-  errorCantidad:
-    "Escribe cuántas piezas vendiste.",
-
-  errorGuardado:
-    "No fue posible guardar la venta en este dispositivo.",
-
-  ventaBorrada:
-    "La venta fue borrada."
+const applicationState = {
+  selectedCategoryId: "",
+  selectedSubcategoryId: "",
+  editingExpenseId: ""
 };
-
-
-// ============================================================
-// INICIO DE LA APLICACIÓN
-// ============================================================
 
 document.addEventListener(
   "DOMContentLoaded",
   () => {
-    document
-      .querySelector("#btn-agregar-producto")
-      .addEventListener(
-        "click",
-        () => crearFilaProducto()
-      );
-
-    document
-      .querySelector("#btn-guardar-venta")
-      .addEventListener(
-        "click",
-        guardarVentaFormulario
-      );
-
-    crearFilaProducto();
-
-    iniciarModuloWhatsappSiExiste();
-
-    actualizarPantalla();
-
-    registrarServiceWorker();
+    initializeSettings();
+    initializeExpenseForm();
+    refreshApplication();
+    registerServiceWorker();
   }
 );
 
-
-// ============================================================
-// CONECTAR EL MÓDULO DE CONSULTA RÁPIDA
-// ============================================================
-//
-// Estas validaciones evitan que toda la aplicación se detenga
-// si el archivo whatsapp.js todavía no está conectado.
-//
-// ============================================================
-
-function iniciarModuloWhatsappSiExiste() {
-  if (
-    typeof iniciarReporteWhatsapp ===
-    "function"
-  ) {
-    iniciarReporteWhatsapp();
-
-    return;
-  }
-
-  console.warn(
-    "No se encontró whatsapp.js. " +
-    "La captura de ventas funcionará, " +
-    "pero la consulta rápida no estará disponible."
-  );
-}
-
-
-function actualizarReporteWhatsappSiExiste() {
-  if (
-    typeof actualizarReporteWhatsapp ===
-    "function"
-  ) {
-    actualizarReporteWhatsapp();
-  }
-}
-
-
-// ============================================================
-// CREAR UN RENGLÓN DE PRODUCTO
-// ============================================================
-
-function crearFilaProducto(
-  productoInicial = "",
-  precioInicial = "",
-  cantidadInicial = 1
-) {
-  const plantilla =
+function initializeExpenseForm() {
+  const dateInput =
     document.querySelector(
-      "#plantilla-fila-producto"
+      "#expense-date"
     );
 
-  const fila =
-    plantilla
-      .content
-      .firstElementChild
-      .cloneNode(true);
-
-  const selectProducto =
-    fila.querySelector(
-      ".input-producto"
-    );
-
-  const inputPrecio =
-    fila.querySelector(
-      ".input-precio"
-    );
-
-  const inputCantidad =
-    fila.querySelector(
-      ".input-cantidad"
-    );
-
-  const botonQuitar =
-    fila.querySelector(
-      ".btn-quitar"
-    );
-
-  CATALOGO_PRODUCTOS.forEach(
-    (nombreProducto) => {
-      const opcion =
-        document.createElement(
-          "option"
-        );
-
-      opcion.value =
-        nombreProducto;
-
-      opcion.textContent =
-        nombreProducto;
-
-      selectProducto.append(
-        opcion
-      );
-    }
-  );
-
-  selectProducto.value =
-    productoInicial;
-
-  inputPrecio.value =
-    precioInicial === ""
-      ? ""
-      : Number(
-          precioInicial
-        ).toFixed(2);
-
-  inputCantidad.value =
-    String(
-      cantidadInicial
-    );
-
-  inputPrecio.addEventListener(
-    "blur",
-    () => {
-      const precio =
-        normalizarPrecio(
-          inputPrecio.value
-        );
-
-      if (precio !== null) {
-        inputPrecio.value =
-          precio.toFixed(2);
-      }
-    }
-  );
-
-  fila.addEventListener(
-    "input",
-    actualizarTotalCaptura
-  );
-
-  fila.addEventListener(
-    "change",
-    actualizarTotalCaptura
-  );
-
-  botonQuitar.addEventListener(
-    "click",
-    () => {
-      const filas =
-        document.querySelectorAll(
-          ".fila-producto"
-        );
-
-      if (filas.length === 1) {
-        selectProducto.value =
-          "";
-
-        inputPrecio.value =
-          "";
-
-        inputCantidad.value =
-          "1";
-
-        limpiarErroresFila(
-          fila
-        );
-
-      } else {
-        fila.remove();
-      }
-
-      actualizarTotalCaptura();
-    }
-  );
+  if (dateInput) {
+    dateInput.value =
+      getLocalDateKey();
+  }
 
   document
     .querySelector(
-      "#lista-productos"
+      "#save-expense-button"
     )
-    .append(
-      fila
+    ?.addEventListener(
+      "click",
+      saveExpenseFromForm
     );
 
-  actualizarTotalCaptura();
+  document
+    .querySelector(
+      "#cancel-edit-button"
+    )
+    ?.addEventListener(
+      "click",
+      resetExpenseForm
+    );
 
-  return fila;
+  document
+    .querySelector(
+      "#expense-amount"
+    )
+    ?.addEventListener(
+      "blur",
+      formatAmountInput
+    );
+
+  document.addEventListener(
+    "settingschanged",
+    () => {
+      refreshApplication();
+    }
+  );
 }
 
-
-// ============================================================
-// NORMALIZAR PRECIO
-// ============================================================
-//
-// Entradas válidas:
-//
-// 25
-// 25.5
-// 25.50
-// 25,5
-// 25,50
-// $25.50
-//
-// Resultado guardado:
-//
-// 25.00
-// 25.50
-//
-// ============================================================
-
-function normalizarPrecio(valor) {
-  const texto =
-    String(valor)
-      .trim()
-      .replace(
-        /\s+/g,
-        ""
-      )
-      .replace(
-        /\$/g,
-        ""
-      );
+function normalizeAmount(value) {
+  const text = String(value)
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/[$€£¥]/g, "");
 
   if (
     !/^\d+(?:[.,]\d{0,2})?$/.test(
-      texto
+      text
     )
   ) {
     return null;
   }
 
-  const numero =
-    Number(
-      texto.replace(
-        ",",
-        "."
-      )
-    );
-
-  if (
-    !Number.isFinite(
-      numero
-    ) ||
-    numero <= 0
-  ) {
-    return null;
-  }
-
-  return Number(
-    numero.toFixed(2)
+  const amount = Number(
+    text.replace(",", ".")
   );
-}
-
-
-// ============================================================
-// NORMALIZAR CANTIDAD
-// ============================================================
-
-function normalizarCantidad(valor) {
-  const texto =
-    String(valor).trim();
 
   if (
-    !/^\d+$/.test(
-      texto
-    )
+    !Number.isFinite(amount) ||
+    amount <= 0
   ) {
     return null;
   }
 
-  const numero =
-    Number(
-      texto
-    );
-
-  if (
-    !Number.isInteger(
-      numero
-    ) ||
-    numero <= 0
-  ) {
-    return null;
-  }
-
-  return numero;
+  return Number(amount.toFixed(2));
 }
 
-
-// ============================================================
-// LEER PRODUCTOS CAPTURADOS
-// ============================================================
-
-function leerProductosFormulario() {
-  const filas = [
-    ...document.querySelectorAll(
-      ".fila-producto"
-    )
-  ];
-
-  const productos = [];
-
-  for (
-    const fila of filas
-  ) {
-    limpiarErroresFila(
-      fila
+function formatAmountInput() {
+  const input =
+    document.querySelector(
+      "#expense-amount"
     );
 
-    const selectProducto =
-      fila.querySelector(
-        ".input-producto"
-      );
-
-    const inputPrecio =
-      fila.querySelector(
-        ".input-precio"
-      );
-
-    const inputCantidad =
-      fila.querySelector(
-        ".input-cantidad"
-      );
-
-    const producto =
-      selectProducto.value;
-
-    const precio =
-      normalizarPrecio(
-        inputPrecio.value
-      );
-
-    const cantidad =
-      normalizarCantidad(
-        inputCantidad.value
-      );
-
-    if (!producto) {
-      marcarError(
-        selectProducto
-      );
-
-      mostrarMensaje(
-        TEXTOS_UI.errorProducto,
-        true
-      );
-
-      selectProducto.focus();
-
-      return null;
-    }
-
-    if (
-      precio === null
-    ) {
-      marcarError(
-        inputPrecio.closest(
-          ".entrada-moneda"
-        )
-      );
-
-      mostrarMensaje(
-        TEXTOS_UI.errorPrecio,
-        true
-      );
-
-      inputPrecio.focus();
-
-      return null;
-    }
-
-    if (
-      cantidad === null
-    ) {
-      marcarError(
-        inputCantidad
-      );
-
-      mostrarMensaje(
-        TEXTOS_UI.errorCantidad,
-        true
-      );
-
-      inputCantidad.focus();
-
-      return null;
-    }
-
-    inputPrecio.value =
-      precio.toFixed(2);
-
-    inputCantidad.value =
-      String(
-        cantidad
-      );
-
-    productos.push({
-      producto,
-      precio,
-      cantidad
-    });
-  }
-
-  return productos;
-}
-
-
-// ============================================================
-// CONSTRUIR OBJETO DE VENTA
-// ============================================================
-
-function construirVenta(productos) {
-  const total =
-    productos.reduce(
-      (
-        acumulado,
-        item
-      ) =>
-        acumulado +
-        item.precio *
-        item.cantidad,
-      0
-    );
-
-  return {
-    id:
-      crearIdVenta(),
-
-    fechaISO:
-      new Date().toISOString(),
-
-    productos,
-
-    total:
-      Number(
-        total.toFixed(2)
-      )
-  };
-}
-
-
-// ============================================================
-// GUARDAR VENTA DEL FORMULARIO
-// ============================================================
-
-function guardarVentaFormulario() {
-  const productos =
-    leerProductosFormulario();
-
-  if (!productos) {
+  if (!input) {
     return;
   }
 
-  const venta =
-    construirVenta(
-      productos
+  const amount =
+    normalizeAmount(input.value);
+
+  if (amount !== null) {
+    input.value =
+      amount.toFixed(2);
+  }
+}
+
+function renderCategorySelector() {
+  const container =
+    document.querySelector(
+      "#category-selector"
     );
 
-  if (
-    !agregarVenta(
-      venta
-    )
-  ) {
-    mostrarMensaje(
-      TEXTOS_UI.errorGuardado,
-      true
-    );
-
+  if (!container) {
     return;
   }
 
-  registrarProductosRecientes(
-    productos
-  );
+  container.replaceChildren();
 
-  reiniciarFormulario();
-
-  actualizarPantalla();
-
-  mostrarMensaje(
-    TEXTOS_UI.ventaGuardada
-  );
-}
-
-
-// ============================================================
-// GUARDAR VENTA RÁPIDA
-// ============================================================
-//
-// Al tocar "+ Otra igual":
-//
-// - Se registra el mismo producto.
-// - Se conserva el último precio capturado.
-// - Se registra una sola pieza.
-// - No obliga a volver a abrir el formulario.
-//
-// ============================================================
-
-function guardarVentaRapida(
-  productoReciente
-) {
-  const productos = [
-    {
-      producto:
-        productoReciente.producto,
-
-      precio:
-        Number(
-          productoReciente.precio
-        ),
-
-      cantidad:
-        1
-    }
-  ];
-
-  const venta =
-    construirVenta(
-      productos
-    );
-
-  if (
-    !agregarVenta(
-      venta
-    )
-  ) {
-    mostrarMensaje(
-      TEXTOS_UI.errorGuardado,
-      true
-    );
-
-    return;
-  }
-
-  registrarProductosRecientes(
-    productos
-  );
-
-  actualizarPantalla();
-
-  mostrarMensaje(
-    TEXTOS_UI.ventaRapidaGuardada
-  );
-}
-
-
-// ============================================================
-// REINICIAR FORMULARIO
-// ============================================================
-
-function reiniciarFormulario() {
-  const lista =
-    document.querySelector(
-      "#lista-productos"
-    );
-
-  lista.replaceChildren();
-
-  crearFilaProducto();
-}
-
-
-// ============================================================
-// ACTUALIZAR INTERFAZ
-// ============================================================
-
-function actualizarPantalla() {
-  const ventasHoy =
-    obtenerVentasDeHoy();
-
-  renderizarResumenDia(
-    ventasHoy
-  );
-
-  renderizarHistorialDia(
-    ventasHoy,
-    borrarVenta
-  );
-
-  renderizarProductosRecientes();
-
-  actualizarTotalCaptura();
-
-  actualizarReporteWhatsappSiExiste();
-}
-
-
-// ============================================================
-// PRODUCTOS RECIENTES
-// ============================================================
-
-function renderizarProductosRecientes() {
-  const seccion =
-    document.querySelector(
-      "#seccion-recientes"
-    );
-
-  const contenedor =
-    document.querySelector(
-      "#productos-recientes"
-    );
-
-  const productosRecientes =
-    obtenerProductosRecientes();
-
-  contenedor.replaceChildren();
-
-  seccion.classList.toggle(
-    "oculto",
-    productosRecientes.length === 0
-  );
-
-  productosRecientes.forEach(
-    (
-      productoReciente
-    ) => {
-      const tarjeta =
+  getExpenseCategories()
+    .forEach((category) => {
+      const button =
         document.createElement(
           "button"
         );
 
-      const nombre =
-        document.createElement(
-          "span"
-        );
+      button.type = "button";
+      button.className =
+        "category-option";
 
-      const precio =
-        document.createElement(
-          "span"
-        );
-
-      const accion =
-        document.createElement(
-          "span"
-        );
-
-      tarjeta.type =
-        "button";
-
-      tarjeta.className =
-        "tarjeta-reciente";
-
-      nombre.className =
-        "tarjeta-reciente-nombre";
-
-      precio.className =
-        "tarjeta-reciente-precio";
-
-      accion.className =
-        "tarjeta-reciente-accion";
-
-      nombre.textContent =
-        productoReciente.producto;
-
-      precio.textContent =
-        `${
-          formatearMoneda(
-            productoReciente.precio
-          )
-        } · 1 pieza`;
-
-      accion.textContent =
-        "+ Otra igual";
-
-      tarjeta.append(
-        nombre,
-        precio,
-        accion
+      button.classList.toggle(
+        "is-selected",
+        applicationState
+          .selectedCategoryId ===
+          category.id
       );
 
-      tarjeta.addEventListener(
+      button.textContent =
+        getCategoryLabel(category.id);
+
+      button.addEventListener(
         "click",
         () =>
-          guardarVentaRapida(
-            productoReciente
+          selectExpenseCategory(
+            category.id
           )
       );
 
-      contenedor.append(
-        tarjeta
+      container.append(button);
+    });
+
+  renderSubcategorySelector();
+  updateCustomFields();
+}
+
+function renderSubcategorySelector() {
+  const section =
+    document.querySelector(
+      "#subcategory-section"
+    );
+
+  const container =
+    document.querySelector(
+      "#subcategory-selector"
+    );
+
+  if (!section || !container) {
+    return;
+  }
+
+  const subcategories =
+    getExpenseSubcategories(
+      applicationState
+        .selectedCategoryId
+    );
+
+  section.classList.toggle(
+    "is-hidden",
+    subcategories.length === 0
+  );
+
+  container.replaceChildren();
+
+  subcategories.forEach(
+    (subcategoryId) => {
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.type = "button";
+      button.className =
+        "subcategory-option";
+
+      button.classList.toggle(
+        "is-selected",
+        applicationState
+          .selectedSubcategoryId ===
+          subcategoryId
       );
+
+      button.textContent =
+        getSubcategoryLabel(
+          subcategoryId
+        );
+
+      button.addEventListener(
+        "click",
+        () =>
+          selectExpenseSubcategory(
+            subcategoryId
+          )
+      );
+
+      container.append(button);
     }
   );
 }
 
+function selectExpenseCategory(
+  categoryId
+) {
+  applicationState
+    .selectedCategoryId =
+      categoryId;
 
-// ============================================================
-// BORRAR UNA VENTA
-// ============================================================
+  applicationState
+    .selectedSubcategoryId = "";
 
-function borrarVenta(idVenta) {
+  renderCategorySelector();
+}
+
+function selectExpenseSubcategory(
+  subcategoryId
+) {
+  applicationState
+    .selectedSubcategoryId =
+      subcategoryId;
+
+  renderSubcategorySelector();
+  updateCustomFields();
+}
+
+function updateCustomFields() {
+  const customCategoryField =
+    document.querySelector(
+      "#custom-category-field"
+    );
+
+  const customSubcategoryField =
+    document.querySelector(
+      "#custom-subcategory-field"
+    );
+
+  customCategoryField
+    ?.classList.toggle(
+      "is-hidden",
+      !isCustomExpenseCategory(
+        applicationState
+          .selectedCategoryId
+      )
+    );
+
+  customSubcategoryField
+    ?.classList.toggle(
+      "is-hidden",
+      !isCustomExpenseSubcategory(
+        applicationState
+          .selectedSubcategoryId
+      )
+    );
+}
+
+function readExpenseForm() {
+  const amount =
+    normalizeAmount(
+      document.querySelector(
+        "#expense-amount"
+      )?.value
+    );
+
+  const categoryId =
+    applicationState
+      .selectedCategoryId;
+
+  const subcategoryId =
+    applicationState
+      .selectedSubcategoryId;
+
+  const customCategory =
+    document.querySelector(
+      "#custom-category"
+    )?.value.trim() || "";
+
+  const customSubcategory =
+    document.querySelector(
+      "#custom-subcategory"
+    )?.value.trim() || "";
+
+  const description =
+    document.querySelector(
+      "#expense-description"
+    )?.value.trim() || "";
+
+  const date =
+    document.querySelector(
+      "#expense-date"
+    )?.value || getLocalDateKey();
+
+  if (amount === null) {
+    showAppMessage(
+      t("expense.invalidAmount"),
+      true
+    );
+
+    document
+      .querySelector(
+        "#expense-amount"
+      )
+      ?.focus();
+
+    return null;
+  }
+
+  if (!categoryId) {
+    showAppMessage(
+      t("expense.categoryRequired"),
+      true
+    );
+
+    return null;
+  }
+
+  if (
+    isCustomExpenseCategory(
+      categoryId
+    ) &&
+    !customCategory
+  ) {
+    showAppMessage(
+      t(
+        "expense.customCategoryRequired"
+      ),
+      true
+    );
+
+    document
+      .querySelector(
+        "#custom-category"
+      )
+      ?.focus();
+
+    return null;
+  }
+
+  if (
+    isCustomExpenseSubcategory(
+      subcategoryId
+    ) &&
+    !customSubcategory
+  ) {
+    showAppMessage(
+      t(
+        "expense.customSubcategoryRequired"
+      ),
+      true
+    );
+
+    document
+      .querySelector(
+        "#custom-subcategory"
+      )
+      ?.focus();
+
+    return null;
+  }
+
+  return {
+    amount,
+    categoryId,
+    subcategoryId,
+    customCategory,
+    customSubcategory,
+    description,
+    date
+  };
+}
+
+function saveExpenseFromForm() {
+  const expense =
+    readExpenseForm();
+
+  if (!expense) {
+    return;
+  }
+
+  const isEditing =
+    Boolean(
+      applicationState
+        .editingExpenseId
+    );
+
+  const saved = isEditing
+    ? updateExpenseById(
+        applicationState
+          .editingExpenseId,
+        expense
+      )
+    : addExpense(expense);
+
+  if (!saved) {
+    showAppMessage(
+      t("expense.saveError"),
+      true
+    );
+
+    return;
+  }
+
+  registerRecentCategory(
+    expense
+  );
+
+  resetExpenseForm();
+  refreshApplication();
+
+  showAppMessage(
+    t(
+      isEditing
+        ? "expense.updated"
+        : "expense.saved"
+    )
+  );
+}
+
+function resetExpenseForm() {
+  applicationState
+    .selectedCategoryId = "";
+
+  applicationState
+    .selectedSubcategoryId = "";
+
+  applicationState
+    .editingExpenseId = "";
+
+  const form =
+    document.querySelector(
+      "#expense-form"
+    );
+
+  form?.reset();
+
+  const dateInput =
+    document.querySelector(
+      "#expense-date"
+    );
+
+  if (dateInput) {
+    dateInput.value =
+      getLocalDateKey();
+  }
+
+  document
+    .querySelector(
+      "#save-expense-button"
+    )
+    ?.setAttribute(
+      "data-i18n",
+      "expense.save"
+    );
+
+  document
+    .querySelector(
+      "#cancel-edit-button"
+    )
+    ?.classList.add(
+      "is-hidden"
+    );
+
+  renderCategorySelector();
+  applyTranslations();
+}
+
+function editExpense(expenseId) {
+  const expense =
+    getExpenseById(expenseId);
+
+  if (!expense) {
+    return;
+  }
+
+  applicationState
+    .editingExpenseId =
+      expense.id;
+
+  applicationState
+    .selectedCategoryId =
+      expense.categoryId;
+
+  applicationState
+    .selectedSubcategoryId =
+      expense.subcategoryId;
+
+  document.querySelector(
+    "#expense-amount"
+  ).value =
+    Number(expense.amount)
+      .toFixed(2);
+
+  document.querySelector(
+    "#custom-category"
+  ).value =
+    expense.customCategory;
+
+  document.querySelector(
+    "#custom-subcategory"
+  ).value =
+    expense.customSubcategory;
+
+  document.querySelector(
+    "#expense-description"
+  ).value =
+    expense.description;
+
+  document.querySelector(
+    "#expense-date"
+  ).value =
+    expense.date;
+
+  document
+    .querySelector(
+      "#save-expense-button"
+    )
+    ?.setAttribute(
+      "data-i18n",
+      "expense.update"
+    );
+
+  document
+    .querySelector(
+      "#cancel-edit-button"
+    )
+    ?.classList.remove(
+      "is-hidden"
+    );
+
+  renderCategorySelector();
+  applyTranslations();
+
+  document
+    .querySelector(
+      "#new-expense-panel"
+    )
+    ?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+}
+
+function deleteExpense(expenseId) {
   if (
     !window.confirm(
-      "¿Borrar esta venta?"
+      t("history.deleteConfirm")
     )
   ) {
     return;
   }
 
-  eliminarVentaPorId(
-    idVenta
-  );
+  if (!deleteExpenseById(expenseId)) {
+    return;
+  }
 
-  actualizarPantalla();
-
-  mostrarMensaje(
-    TEXTOS_UI.ventaBorrada
-  );
-}
-
-
-// ============================================================
-// CALCULAR TOTAL EN TIEMPO REAL
-// ============================================================
-
-function actualizarTotalCaptura() {
-  const filas = [
-    ...document.querySelectorAll(
-      ".fila-producto"
-    )
-  ];
-
-  const total =
-    filas.reduce(
-      (
-        acumulado,
-        fila
-      ) => {
-        const precio =
-          normalizarPrecio(
-            fila
-              .querySelector(
-                ".input-precio"
-              )
-              .value
-          );
-
-        const cantidad =
-          normalizarCantidad(
-            fila
-              .querySelector(
-                ".input-cantidad"
-              )
-              .value
-          );
-
-        if (
-          precio === null ||
-          cantidad === null
-        ) {
-          return acumulado;
-        }
-
-        return (
-          acumulado +
-          precio *
-          cantidad
-        );
-      },
-      0
-    );
-
-  document
-    .querySelector(
-      "#total-captura"
-    )
-    .textContent =
-      formatearMoneda(
-        total
-      );
-}
-
-
-// ============================================================
-// MENSAJES Y ERRORES
-// ============================================================
-
-function mostrarMensaje(
-  texto,
-  esError = false
-) {
-  const mensaje =
-    document.querySelector(
-      "#mensaje-app"
-    );
-
-  mensaje.textContent =
-    texto;
-
-  mensaje.classList.toggle(
-    "error",
-    esError
-  );
-}
-
-
-function limpiarErroresFila(fila) {
-  fila
-    .querySelectorAll(
-      ".invalido"
-    )
-    .forEach(
-      (
-        elemento
-      ) =>
-        elemento.classList.remove(
-          "invalido"
-        )
-    );
-}
-
-
-function marcarError(elemento) {
-  elemento.classList.add(
-    "invalido"
-  );
-}
-
-
-// ============================================================
-// SERVICE WORKER PARA MODO SIN INTERNET
-// ============================================================
-
-function registrarServiceWorker() {
   if (
-    !(
-      "serviceWorker" in
-      navigator
-    )
+    applicationState
+      .editingExpenseId ===
+      expenseId
+  ) {
+    resetExpenseForm();
+  }
+
+  refreshApplication();
+
+  showAppMessage(
+    t("expense.deleted")
+  );
+}
+
+function renderRecentCategories() {
+  const section =
+    document.querySelector(
+      "#recent-categories-panel"
+    );
+
+  const container =
+    document.querySelector(
+      "#recent-categories"
+    );
+
+  if (!section || !container) {
+    return;
+  }
+
+  const recentCategories =
+    getRecentCategories();
+
+  section.classList.toggle(
+    "is-hidden",
+    recentCategories.length === 0
+  );
+
+  container.replaceChildren();
+
+  recentCategories.forEach(
+    (item) => {
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      const category =
+        document.createElement(
+          "strong"
+        );
+
+      const subcategory =
+        document.createElement(
+          "span"
+        );
+
+      button.type = "button";
+      button.className =
+        "recent-category-card";
+
+      category.textContent =
+        getCategoryLabel(
+          item.categoryId,
+          item.customCategory
+        );
+
+      const subcategoryLabel =
+        getSubcategoryLabel(
+          item.subcategoryId,
+          item.customSubcategory
+        );
+
+      subcategory.textContent =
+        subcategoryLabel;
+
+      subcategory.classList.toggle(
+        "is-hidden",
+        !subcategoryLabel
+      );
+
+      button.append(
+        category,
+        subcategory
+      );
+
+      button.addEventListener(
+        "click",
+        () => {
+          applicationState
+            .selectedCategoryId =
+              item.categoryId;
+
+          applicationState
+            .selectedSubcategoryId =
+              item.subcategoryId;
+
+          document.querySelector(
+            "#custom-category"
+          ).value =
+            item.customCategory || "";
+
+          document.querySelector(
+            "#custom-subcategory"
+          ).value =
+            item.customSubcategory || "";
+
+          renderCategorySelector();
+
+          document
+            .querySelector(
+              "#expense-amount"
+            )
+            ?.focus();
+
+          document
+            .querySelector(
+              "#new-expense-panel"
+            )
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+        }
+      );
+
+      container.append(button);
+    }
+  );
+}
+
+function refreshApplication() {
+  applyTranslations();
+  renderCategorySelector();
+
+  const expenses =
+    getExpenses();
+
+  renderDashboardSummary(expenses);
+
+  renderExpenseHistory(
+    expenses,
+    {
+      onEdit: editExpense,
+      onDelete: deleteExpense,
+      onCopy: copyDailyHistory
+    }
+  );
+
+  renderRecentCategories();
+}
+
+function showAppMessage(
+  text,
+  isError = false
+) {
+  const message =
+    document.querySelector(
+      "#app-message"
+    );
+
+  if (!message) {
+    return;
+  }
+
+  message.textContent = text;
+  message.classList.toggle(
+    "is-error",
+    isError
+  );
+}
+
+function registerServiceWorker() {
+  if (
+    !("serviceWorker" in navigator)
   ) {
     return;
   }
@@ -888,21 +758,16 @@ function registrarServiceWorker() {
   window.addEventListener(
     "load",
     () => {
-      navigator
-        .serviceWorker
+      navigator.serviceWorker
         .register(
           "./service-worker.js"
         )
-        .catch(
-          (
+        .catch((error) => {
+          console.error(
+            "Unable to register the service worker:",
             error
-          ) => {
-            console.error(
-              "No fue posible registrar el service worker:",
-              error
-            );
-          }
-        );
+          );
+        });
     }
   );
 }
