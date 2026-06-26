@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html
+  lang="es"
+  data-visual-style="modern"
+  data-palette="magenta"
+>
 <head>
   <meta charset="UTF-8">
 
@@ -13,9 +17,12 @@
     content="#d10082"
   >
 
-  <title>
-    Reporte de ventas Tuny-Ancla
-  </title>
+  <meta
+    name="description"
+    content="Private and customizable expense tracker."
+  >
+
+  <title>Expense Tracker</title>
 
   <link
     rel="manifest"
@@ -24,520 +31,508 @@
 
   <link
     rel="stylesheet"
-    href="./css/styles.css"
+    href="./css/palettes.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./css/base.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./css/components.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./css/visual-styles.css"
   >
 </head>
 
 <body>
-  <!-- =====================================================
-       ENCABEZADO
-  ====================================================== -->
-  <header class="encabezado-app">
-    <div class="encabezado-contenido">
-      <p class="encabezado-etiqueta">
-        Captura rápida
-      </p>
+  <header class="app-header">
+    <div class="app-shell app-header__content">
+      <div>
+        <p
+          class="eyebrow"
+          data-i18n="app.subtitle"
+        >
+          Registro privado en tu dispositivo
+        </p>
 
-      <h1>
-        Reporte de ventas Tuny-Ancla
-      </h1>
+        <h1 data-i18n="app.title">
+          Control de gastos
+        </h1>
+      </div>
+
+      <button
+        id="open-settings-button"
+        class="icon-button"
+        type="button"
+        data-i18n-aria-label="settings.open"
+        aria-label="Abrir configuración"
+      >
+        ⚙
+      </button>
     </div>
   </header>
 
-  <main class="contenedor-app">
-    <!-- =====================================================
-     DATOS GENERALES DEL REPORTE
-====================================================== -->
-<section
-  class="panel"
-  aria-labelledby="titulo-datos-reporte"
->
-  <div class="titulo-seccion">
-    <div>
-      <p class="subtitulo">
-        Solo se escriben una vez
-      </p>
-
-      <h2 id="titulo-datos-reporte">
-        Datos del reporte
-      </h2>
-    </div>
-  </div>
-
-  <p class="texto-ayuda">
-    Estos datos quedarán guardados en este teléfono.
-  </p>
-
-  <div class="datos-reporte-grid">
-    <div class="campo">
-      <label for="input-tienda">
-        Tienda
-      </label>
-
-      <input
-        id="input-tienda"
-        type="text"
-        autocomplete="off"
-        placeholder="Ej. Florido La Mesa"
-      >
-    </div>
-
-    <div class="campo">
-      <label for="input-demo">
-        Demo
-      </label>
-
-      <input
-        id="input-demo"
-        type="text"
-        autocomplete="off"
-        placeholder="Nombre de la demovendedora"
-      >
-    </div>
-
-    <div class="campo campo-region">
-      <label for="input-region">
-        Región
-      </label>
-
-      <input
-        id="input-region"
-        type="text"
-        autocomplete="off"
-        placeholder="Ej. Tijuana B.C."
-      >
-    </div>
-
-    <div class="campo campo-region">
-      <label for="input-supervisor">
-        Nombre del supervisor
-      </label>
-
-      <input
-        id="input-supervisor"
-        type="text"
-        autocomplete="off"
-        placeholder="Nombre del supervisor"
-      >
-    </div>
-
-    <div class="campo campo-region">
-      <label for="input-horario">
-        Horario
-      </label>
-
-      <input
-        id="input-horario"
-        type="text"
-        autocomplete="off"
-        placeholder="Ej. 10:00 a.m. - 6:00 p.m."
-      >
-    </div>
-  </div>
-</section>
-
-    <!-- =====================================================
-         NUEVA VENTA
-    ====================================================== -->
+  <main class="app-shell app-main">
     <section
-      class="panel panel-captura"
-      aria-labelledby="titulo-nueva-venta"
+      class="panel dashboard-panel"
+      aria-labelledby="dashboard-title"
     >
-      <div class="titulo-seccion">
+      <div class="section-heading">
         <div>
-          <p class="subtitulo">
-            Registro del día
+          <p
+            class="eyebrow"
+            data-i18n="dashboard.subtitle"
+          >
+            Resumen de tus movimientos
           </p>
 
-          <h2 id="titulo-nueva-venta">
-            Nueva venta
+          <h2
+            id="dashboard-title"
+            data-i18n="dashboard.title"
+          >
+            Gasto acumulado
           </h2>
         </div>
       </div>
 
       <div
-        id="lista-productos"
-        class="lista-productos"
-      ></div>
-
-      <button
-        id="btn-agregar-producto"
-        class="btn btn-secundario"
-        type="button"
-      >
-        + Agregar producto
-      </button>
-
-      <div class="total-captura">
-        <span>
-          Total de esta venta
-        </span>
-
-        <strong id="total-captura">
-          $0.00
-        </strong>
-      </div>
-
-      <button
-        id="btn-guardar-venta"
-        class="btn btn-principal"
-        type="button"
-      >
-        Guardar venta
-      </button>
-
-      <p
-        id="mensaje-app"
-        class="mensaje-app"
-        aria-live="polite"
-      ></p>
-    </section>
-
-    <!-- =====================================================
-         PRODUCTOS RECIENTES
-    ====================================================== -->
-    <section
-      id="seccion-recientes"
-      class="panel oculto"
-      aria-labelledby="titulo-recientes"
-    >
-      <div class="titulo-seccion">
-        <div>
-          <p class="subtitulo">
-            Para vender más rápido
-          </p>
-
-          <h2 id="titulo-recientes">
-            Productos recientes
-          </h2>
-        </div>
-      </div>
-
-      <p class="texto-ayuda">
-        Toca una tarjeta para registrar una pieza más del mismo producto.
-      </p>
-
-      <div
-        id="productos-recientes"
-        class="productos-recientes"
+        id="expense-summary"
+        class="expense-summary"
       ></div>
     </section>
 
-    <!-- =====================================================
-         CONSULTA RÁPIDA
-    ====================================================== -->
     <section
+      id="new-expense-panel"
       class="panel"
-      aria-labelledby="titulo-consulta"
+      aria-labelledby="new-expense-title"
     >
-      <div class="titulo-seccion">
+      <div class="section-heading">
         <div>
-          <p class="subtitulo">
-            Listo para enviar
+          <p
+            class="eyebrow"
+            data-i18n="expense.subtitle"
+          >
+            Registro rápido
           </p>
 
-          <h2 id="titulo-consulta">
-            Consulta rápida
+          <h2
+            id="new-expense-title"
+            data-i18n="expense.title"
+          >
+            Nuevo gasto
           </h2>
         </div>
       </div>
 
-      <div
-        id="resumen-dia"
-        class="resumen-dia"
-      ></div>
-
-<!-- ===================================================
-     CANJES
-==================================================== -->
-<div class="bloque-canjes">
-  <div class="titulo-canjes">
-    <div>
-      <span class="canjes-etiqueta">
-        Canjes registrados
-      </span>
-
-      <p class="texto-ayuda">
-        Selecciona el promocional entregado y captura la cantidad.
-      </p>
-    </div>
-
-    <div class="total-canjes">
-      <span>
-        Total
-      </span>
-
-      <strong
-        id="contador-canjes"
-        class="contador-canjes"
+      <form
+        id="expense-form"
+        class="expense-form"
+        novalidate
       >
-        0
-      </strong>
-    </div>
-  </div>
+        <div class="form-grid">
+          <div class="field">
+            <label
+              for="expense-amount"
+              data-i18n="expense.amount"
+            >
+              Importe
+            </label>
 
-  <div class="captura-canje">
-    <div class="campo campo-canje">
-      <label for="input-canje">
-        Promocional entregado
-      </label>
+            <div class="currency-input">
+              <span aria-hidden="true">
+                $
+              </span>
 
-      <select id="input-canje">
-        <option value="">
-          Elige un canje
-        </option>
-      </select>
-    </div>
+              <input
+                id="expense-amount"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0.00"
+              >
+            </div>
+          </div>
 
-    <div class="campo campo-cantidad-canje">
-      <label for="input-cantidad-canje">
-        Cantidad
-      </label>
+          <div class="field">
+            <label
+              for="expense-date"
+              data-i18n="expense.date"
+            >
+              Fecha
+            </label>
 
-      <input
-        id="input-cantidad-canje"
-        type="text"
-        inputmode="numeric"
-        autocomplete="off"
-        value="1"
-      >
-    </div>
+            <input
+              id="expense-date"
+              type="date"
+            >
+          </div>
+        </div>
 
-    <button
-      id="btn-agregar-canje"
-      class="btn btn-canje"
-      type="button"
-    >
-      + Agregar canje
-    </button>
-  </div>
+        <fieldset class="category-fieldset">
+          <legend data-i18n="expense.category">
+            Categoría
+          </legend>
 
-  <div
-    id="lista-canjes"
-    class="lista-canjes"
-  ></div>
-</div>
-      
-    
-      <!-- ===================================================
-           TEXTO PARA WHATSAPP
-      ==================================================== -->
-      <label
-        class="etiqueta-reporte"
-        for="reporte-whatsapp"
-      >
-        Texto listo para WhatsApp
-      </label>
-
-      <textarea
-        id="reporte-whatsapp"
-        class="reporte-whatsapp"
-        rows="18"
-        readonly
-      ></textarea>
-
-      <button
-        id="btn-copiar-reporte"
-        class="btn btn-principal"
-        type="button"
-      >
-        Copiar reporte
-      </button>
-
-      <!-- ===================================================
-           HISTORIAL DESPLEGABLE
-      ==================================================== -->
-      <details class="detalle-historial">
-        <summary>
-          Ver o borrar ventas capturadas
-        </summary>
+          <div
+            id="category-selector"
+            class="category-selector"
+          ></div>
+        </fieldset>
 
         <div
-          id="historial-dia"
-          class="historial-dia"
-        ></div>
-      </details>
+          id="custom-category-field"
+          class="field is-hidden"
+        >
+          <label
+            for="custom-category"
+            data-i18n="expense.customCategory"
+          >
+            Nombre de la categoría
+          </label>
+
+          <input
+            id="custom-category"
+            type="text"
+            autocomplete="off"
+          >
+        </div>
+
+        <fieldset
+          id="subcategory-section"
+          class="category-fieldset is-hidden"
+        >
+          <legend data-i18n="expense.subcategory">
+            Subcategoría
+          </legend>
+
+          <div
+            id="subcategory-selector"
+            class="subcategory-selector"
+          ></div>
+        </fieldset>
+
+        <div
+          id="custom-subcategory-field"
+          class="field is-hidden"
+        >
+          <label
+            for="custom-subcategory"
+            data-i18n="expense.customSubcategory"
+          >
+            Especifica el tipo de gasto
+          </label>
+
+          <input
+            id="custom-subcategory"
+            type="text"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="field">
+          <label
+            for="expense-description"
+            data-i18n="expense.description"
+          >
+            Descripción opcional
+          </label>
+
+          <input
+            id="expense-description"
+            type="text"
+            autocomplete="off"
+            data-i18n-placeholder="expense.descriptionPlaceholder"
+            placeholder="Ej. Compra semanal"
+          >
+        </div>
+
+        <div class="form-actions">
+          <button
+            id="save-expense-button"
+            class="button button--primary"
+            type="button"
+            data-i18n="expense.save"
+          >
+            Guardar gasto
+          </button>
+
+          <button
+            id="cancel-edit-button"
+            class="button button--secondary is-hidden"
+            type="button"
+            data-i18n="expense.cancelEdit"
+          >
+            Cancelar edición
+          </button>
+        </div>
+
+        <p
+          id="app-message"
+          class="app-message"
+          aria-live="polite"
+        ></p>
+      </form>
     </section>
 
-    <!-- =====================================================
-         GENERAR REPORTE PDF
-    ====================================================== -->
     <section
-      class="panel panel-exportar-pdf"
-      aria-labelledby="titulo-exportar-pdf"
+      id="recent-categories-panel"
+      class="panel is-hidden"
+      aria-labelledby="recent-categories-title"
     >
-      <div class="titulo-seccion">
+      <div class="section-heading">
         <div>
-          <p class="subtitulo">
-            Formato oficial
+          <p
+            class="eyebrow"
+            data-i18n="recent.subtitle"
+          >
+            Acceso rápido
           </p>
 
-          <h2 id="titulo-exportar-pdf">
-            Reporte diario en PDF
+          <h2
+            id="recent-categories-title"
+            data-i18n="recent.title"
+          >
+            Categorías recientes
           </h2>
         </div>
       </div>
 
-      <p class="texto-ayuda">
-        Se llenará automáticamente con la información disponible de las ventas registradas hoy.
+      <p
+        class="helper-text"
+        data-i18n="recent.help"
+      >
+        Toca una categoría para usarla en el formulario.
       </p>
 
-      <button
-        id="btn-generar-pdf"
-        class="btn btn-principal"
-        type="button"
-      >
-        Generar reporte PDF
-      </button>
-
       <div
-        id="acciones-pdf"
-        class="acciones-pdf oculto"
-      >
-        <a
-          id="btn-descargar-pdf"
-          class="btn btn-secundario btn-enlace"
-          href="#"
-          download
-        >
-          Descargar PDF
-        </a>
+        id="recent-categories"
+        class="recent-categories"
+      ></div>
+    </section>
 
-        <button
-          id="btn-compartir-pdf"
-          class="btn btn-secundario"
-          type="button"
-        >
-          Compartir PDF
-        </button>
+    <section
+      class="panel"
+      aria-labelledby="expense-history-title"
+    >
+      <div class="section-heading">
+        <div>
+          <p
+            class="eyebrow"
+            data-i18n="history.subtitle"
+          >
+            Movimientos por día
+          </p>
+
+          <h2
+            id="expense-history-title"
+            data-i18n="history.title"
+          >
+            Historial de gastos
+          </h2>
+        </div>
       </div>
 
-      <p
-        id="mensaje-pdf"
-        class="mensaje-pdf"
-        aria-live="polite"
-      ></p>
+      <div
+        id="expense-history"
+        class="expense-history"
+      ></div>
     </section>
   </main>
 
-  <!-- =====================================================
-       PLANTILLA PARA CREAR RENGLONES DE PRODUCTOS
-  ====================================================== -->
-  <template id="plantilla-fila-producto">
-    <article class="fila-producto">
-      <div class="campo campo-producto">
-        <label>
-          Producto
+  <dialog
+    id="settings-dialog"
+    class="settings-dialog"
+  >
+    <div class="dialog-header">
+      <h2 data-i18n="settings.title">
+        Configuración
+      </h2>
+
+      <button
+        id="close-settings-button"
+        class="icon-button"
+        type="button"
+        data-i18n-aria-label="settings.close"
+        aria-label="Cerrar configuración"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="settings-grid">
+      <div class="field">
+        <label
+          for="select-language"
+          data-i18n="settings.language"
+        >
+          Idioma
         </label>
 
-        <select class="input-producto">
-          <option value="">
-            Elige un producto
+        <select id="select-language">
+          <option value="es">
+            Español
+          </option>
+
+          <option value="en">
+            English
           </option>
         </select>
       </div>
 
-      <div class="campo">
-        <label>
-          Precio
-        </label>
-
-        <div class="entrada-moneda">
-          <span>
-            $
-          </span>
-
-          <input
-            class="input-precio"
-            type="text"
-            inputmode="decimal"
-            autocomplete="off"
-            placeholder="0.00"
-            aria-label="Precio"
-          >
-        </div>
-      </div>
-
-      <div class="campo campo-cantidad">
-        <label>
-          Cantidad
-        </label>
-
-        <input
-          class="input-cantidad"
-          type="text"
-          inputmode="numeric"
-          autocomplete="off"
-          value="1"
-          aria-label="Cantidad"
+      <div class="field">
+        <label
+          for="select-visual-style"
+          data-i18n="settings.visualStyle"
         >
+          Estilo visual
+        </label>
+
+        <select id="select-visual-style">
+          <option
+            value="modern"
+            data-i18n="settings.modern"
+          >
+            Moderno
+          </option>
+
+          <option
+            value="pixel"
+            data-i18n="settings.pixel"
+          >
+            Pixel art
+          </option>
+
+          <option
+            value="office"
+            data-i18n="settings.office"
+          >
+            Oficina
+          </option>
+        </select>
       </div>
 
-      <button
-        class="btn-quitar"
-        type="button"
-        aria-label="Quitar producto"
-      >
-        Quitar
-      </button>
-    </article>
-  </template>
-<!-- =====================================================
-     PLANTILLA PARA CANJES REGISTRADOS
-====================================================== -->
-<template id="plantilla-canje-registrado">
-  <article class="fila-canje-registrado">
-    <div>
-      <strong class="nombre-canje-registrado">
-        Promocional
-      </strong>
+      <div class="field">
+        <label
+          for="select-palette"
+          data-i18n="settings.palette"
+        >
+          Paleta de colores
+        </label>
 
-      <span class="cantidad-canje-registrado">
-        0
-      </span>
+        <select id="select-palette">
+          <option value="magenta" data-i18n="palettes.magenta">
+            Magenta
+          </option>
+          <option value="ocean" data-i18n="palettes.ocean">
+            Océano
+          </option>
+          <option value="emerald" data-i18n="palettes.emerald">
+            Esmeralda
+          </option>
+          <option value="violet" data-i18n="palettes.violet">
+            Violeta
+          </option>
+          <option value="amber" data-i18n="palettes.amber">
+            Ámbar
+          </option>
+          <option value="powder" data-i18n="palettes.powder">
+            Azul pastel
+          </option>
+          <option value="sage" data-i18n="palettes.sage">
+            Verde salvia
+          </option>
+          <option value="warmGray" data-i18n="palettes.warmGray">
+            Gris cálido
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label
+          for="select-currency"
+          data-i18n="settings.currency"
+        >
+          Moneda
+        </label>
+
+        <select id="select-currency">
+          <option value="MXN">MXN</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
     </div>
 
-    <button
-      class="btn-quitar-canje"
-      type="button"
-      aria-label="Quitar canje"
+    <div class="settings-actions">
+      <button
+        id="export-backup-button"
+        class="button button--secondary"
+        type="button"
+        data-i18n="settings.export"
+      >
+        Exportar respaldo
+      </button>
+
+      <button
+        id="import-backup-button"
+        class="button button--secondary"
+        type="button"
+        data-i18n="settings.import"
+      >
+        Importar respaldo
+      </button>
+
+      <button
+        id="clear-data-button"
+        class="button button--danger"
+        type="button"
+        data-i18n="settings.clear"
+      >
+        Borrar todos los datos
+      </button>
+    </div>
+
+    <input
+      id="backup-file-input"
+      class="is-hidden"
+      type="file"
+      accept="application/json,.json"
     >
-      Quitar
-    </button>
-  </article>
-</template>
-  <!-- =====================================================
-       ARCHIVOS JAVASCRIPT
-       
-       El orden es importante.
-  ====================================================== -->
+  </dialog>
+
   <script
-    src="./assets/vendor/pdf-lib.min.js"
+    src="./js/categories.js"
     defer
   ></script>
 
   <script
-    src="./js/catalogo.js"
+    src="./js/storage.js"
     defer
   ></script>
 
   <script
-    src="./js/almacenamiento.js"
+    src="./js/i18n.js"
     defer
   ></script>
 
   <script
-    src="./js/reporte.js"
+    src="./js/settings.js"
     defer
   ></script>
 
   <script
-    src="./js/whatsapp.js"
+    src="./js/history.js"
     defer
   ></script>
 
   <script
-    src="./js/pdf.js"
+    src="./js/copy-history.js"
     defer
   ></script>
 
