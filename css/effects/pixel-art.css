@@ -1,0 +1,224 @@
+/* =========================================================
+   ESTILO VISUAL: PIXEL ART
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] {
+  /* Paleta fija del estilo */
+  --page-background: #171827;
+  --surface: #25283b;
+  --surface-soft: #30344a;
+
+  --text: #fff4cf;
+  --muted: #b8b2a3;
+
+  --accent: #f4c542;
+  --accent-dark: #b98222;
+  --accent-contrast: #19160d;
+
+  --border: #090a10;
+  --pixel-highlight: #fff0a3;
+  --pixel-shadow: #090a10;
+
+  /* Geometría */
+  --visual-radius: 0;
+  --visual-border-width: 2px;
+  --visual-animation-speed: 0ms;
+}
+
+/* =========================================================
+   BASE GENERAL
+   ========================================================= */
+
+html[data-visual-style="pixel-art"],
+html[data-visual-style="pixel-art"] body {
+  background-color: var(--page-background);
+  color: var(--text);
+
+  font-family:
+    "Courier New",
+    "Lucida Console",
+    monospace;
+
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+html[data-visual-style="pixel-art"] body {
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    );
+
+  background-size: 8px 8px;
+}
+
+/* Evita transiciones suaves que rompan la sensación pixelada */
+html[data-visual-style="pixel-art"] *,
+html[data-visual-style="pixel-art"] *::before,
+html[data-visual-style="pixel-art"] *::after {
+  border-radius: 0 !important;
+  transition-duration: 0ms !important;
+}
+
+/* =========================================================
+   CAPA DE TEXTURA
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] .visual-effect-layer {
+  display: block;
+
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.018) 0,
+      rgba(255, 255, 255, 0.018) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+
+  opacity: 0.8;
+}
+
+html[data-visual-style="pixel-art"] .visual-effect-layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(244, 197, 66, 0.025) 25%,
+      transparent 25%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(244, 197, 66, 0.025) 25%,
+      transparent 25%
+    );
+
+  background-size: 12px 12px;
+  pointer-events: none;
+}
+
+/* =========================================================
+   TEXTO
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] h1,
+html[data-visual-style="pixel-art"] h2,
+html[data-visual-style="pixel-art"] h3 {
+  letter-spacing: 0.04em;
+  text-shadow:
+    2px 0 0 var(--pixel-shadow),
+    0 2px 0 var(--pixel-shadow);
+}
+
+html[data-visual-style="pixel-art"] small,
+html[data-visual-style="pixel-art"] .muted {
+  color: var(--muted);
+}
+
+/* =========================================================
+   BOTONES Y CONTROLES
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] button,
+html[data-visual-style="pixel-art"] input,
+html[data-visual-style="pixel-art"] select,
+html[data-visual-style="pixel-art"] textarea {
+  border:
+    var(--visual-border-width)
+    solid
+    var(--border);
+
+  background-color: var(--surface);
+  color: var(--text);
+
+  font: inherit;
+  outline: none;
+}
+
+html[data-visual-style="pixel-art"] button {
+  box-shadow:
+    4px 4px 0
+    var(--pixel-shadow);
+
+  cursor: pointer;
+}
+
+html[data-visual-style="pixel-art"] button:hover {
+  background-color: var(--surface-soft);
+}
+
+html[data-visual-style="pixel-art"] button:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+html[data-visual-style="pixel-art"] button:focus-visible,
+html[data-visual-style="pixel-art"] input:focus-visible,
+html[data-visual-style="pixel-art"] select:focus-visible,
+html[data-visual-style="pixel-art"] textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Botones principales */
+html[data-visual-style="pixel-art"] button.primary,
+html[data-visual-style="pixel-art"] .primary-button,
+html[data-visual-style="pixel-art"] .add-button {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* =========================================================
+   TARJETAS, PANELES Y MODALES
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] .card,
+html[data-visual-style="pixel-art"] .panel,
+html[data-visual-style="pixel-art"] .expense-card,
+html[data-visual-style="pixel-art"] .history-item,
+html[data-visual-style="pixel-art"] dialog {
+  border: 2px solid var(--border);
+  background-color: var(--surface);
+
+  box-shadow:
+    5px 5px 0
+    var(--pixel-shadow);
+}
+
+/* =========================================================
+   IMÁGENES E ICONOS
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] img,
+html[data-visual-style="pixel-art"] canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+html[data-visual-style="pixel-art"] svg {
+  shape-rendering: crispEdges;
+}
+
+/* =========================================================
+   BARRAS Y DIVISORES
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] hr {
+  height: 2px;
+  border: 0;
+  background-color: var(--border);
+}
+
+html[data-visual-style="pixel-art"] ::selection {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+}

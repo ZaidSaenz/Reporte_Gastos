@@ -1,0 +1,27 @@
+/* =========================================================
+   ESTILO VISUAL: MATTE
+   ========================================================= */
+
+[data-visual-style="matte"] {
+  --visual-radius: 14px;
+  --visual-border-width: 1px;
+  --visual-animation-speed: 0ms;
+}
+
+[data-visual-style="matte"] body {
+  filter:
+    saturate(0.82)
+    contrast(0.94)
+    brightness(0.92);
+}
+
+[data-visual-style="matte"] button,
+[data-visual-style="matte"] input,
+[data-visual-style="matte"] select,
+[data-visual-style="matte"] textarea {
+  box-shadow: none;
+}
+
+[data-visual-style="matte"] .visual-effect-layer {
+  display: block;
+}

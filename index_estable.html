@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html
   lang="es"
-  data-visual-style="matte"
+  data-visual-style="modern"
+  data-palette="magenta"
 >
 <head>
   <meta charset="UTF-8">
@@ -13,7 +14,7 @@
 
   <meta
     name="theme-color"
-    content="#222522"
+    content="#d10082"
   >
 
   <meta
@@ -50,11 +51,6 @@
 </head>
 
 <body>
-  <div
-    class="visual-effect-layer"
-    aria-hidden="true"
-  ></div>
-
   <header class="app-header">
     <div class="app-shell app-header__content">
       <h1 class="visually-hidden" data-i18n="app.title">
@@ -478,29 +474,19 @@
         </label>
 
         <select id="select-visual-style">
-          <option value="matte" data-i18n="settings.matte">
-            Mate cómodo
+          <option value="modern" data-i18n="settings.modern">
+            Moderno
           </option>
-          <option value="pixel-art" data-i18n="settings.pixelArt">
+          <option value="pixel" data-i18n="settings.pixel">
             Pixel art
           </option>
-          <option value="cyberpunk" data-i18n="settings.cyberpunk">
-            Cyberpunk
+          <option value="office" data-i18n="settings.office">
+            Oficina
           </option>
         </select>
       </div>
 
-      <!--
-        Compatibilidad temporal con settings.js.
-        Los estilos visuales fijos ya controlan su propia paleta,
-        por lo que este selector permanece oculto hasta retirar
-        su lógica del archivo JavaScript.
-      -->
-      <div
-        class="field is-hidden"
-        hidden
-        aria-hidden="true"
-      >
+      <div class="field">
         <label
           for="select-palette"
           data-i18n="settings.palette"
@@ -508,10 +494,7 @@
           Paleta de colores
         </label>
 
-        <select
-          id="select-palette"
-          tabindex="-1"
-        >
+        <select id="select-palette">
           <option value="magenta" data-i18n="palettes.magenta">Magenta</option>
           <option value="ocean" data-i18n="palettes.ocean">Océano</option>
           <option value="emerald" data-i18n="palettes.emerald">Esmeralda</option>
@@ -618,9 +601,5 @@
   <script src="./js/history.js" defer></script>
   <script src="./js/copy-history.js" defer></script>
   <script src="./js/app.js" defer></script>
-  <script
-    type="module"
-    src="./js/effects/visual-style-manager.js"
-  ></script>
 </body>
 </html>

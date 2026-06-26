@@ -1,6 +1,31 @@
 /* ==========================================================
    MODERN STYLE
 ========================================================== */
+@import url("./effects/pixel-art.css");
+@import url("./effects/matte.css");
+@import url("./effects/cyberpunk.css");
+
+.visual-effect-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+body > *:not(.visual-effect-layer) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visual-effect-layer,
+  .visual-effect-layer::before,
+  .visual-effect-layer::after {
+    animation: none !important;
+  }
+}
 
 :root,
 [data-visual-style="modern"] {

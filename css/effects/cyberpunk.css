@@ -1,0 +1,20 @@
+/* =========================================================
+   ESTILO VISUAL: CYBERPUNK
+   ========================================================= */
+
+[data-visual-style="cyberpunk"] {
+  --visual-radius: 4px;
+  --visual-border-width: 1px;
+  --visual-animation-speed: 8s;
+}
+
+[data-visual-style="cyberpunk"] .visual-effect-layer {
+  display: block;
+}
+
+[data-visual-style="cyberpunk"] button,
+[data-visual-style="cyberpunk"] input,
+[data-visual-style="cyberpunk"] select,
+[data-visual-style="cyberpunk"] textarea {
+  border-radius: var(--visual-radius);
+}
