@@ -10,9 +10,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-
   color: var(--text-primary);
-
   font-family:
     Inter,
     ui-sans-serif,
@@ -21,13 +19,14 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-
-  background-color:
-    var(--page-background);
-
+  background-color: var(--page-background);
   transition:
     color 180ms ease,
     background-color 180ms ease;
+}
+
+body:has(dialog[open]) {
+  overflow: hidden;
 }
 
 button,
@@ -57,18 +56,19 @@ summary:focus-visible {
 
 h1,
 h2,
-p {
+p,
+dl,
+dd {
   margin-top: 0;
 }
 
-h1 {
-  margin-bottom: 0;
-  font-size: clamp(1.3rem, 5vw, 1.9rem);
-  line-height: 1.12;
+h1,
+h2 {
+  line-height: 1.15;
 }
 
 h2 {
-  margin: 4px 0 0;
+  margin-bottom: 0;
   font-size: 1.18rem;
 }
 
@@ -84,50 +84,30 @@ legend {
 }
 
 .app-shell {
-  width: min(100% - 24px, 820px);
+  width: min(100% - 24px, 760px);
   margin-inline: auto;
 }
 
-.app-main {
-  display: grid;
-  gap: 14px;
-  padding: 16px 0 36px;
-}
-
 .app-header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 10;
 }
 
 .app-header__content {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 0 18px;
+  justify-content: flex-end;
+  padding: 14px 0 0;
 }
 
-.panel {
-  padding: 16px;
-  overflow: hidden;
-  border: var(--panel-border-width, 1px)
-    solid var(--border);
-  border-radius: var(--panel-radius, 16px);
-  background: var(--surface);
-  box-shadow: var(--panel-shadow);
-}
-
-.section-heading {
-  display: flex;
+.app-main {
+  display: grid;
+  min-height: calc(100vh - 58px);
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  padding: 10px 0 28px;
 }
 
 .eyebrow {
-  margin: 0;
+  margin: 0 0 4px;
   color: var(--text-secondary);
   font-size: 0.74rem;
   font-weight: 800;
@@ -170,11 +150,22 @@ select:focus {
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-.helper-text,
-.empty-state {
+.field-help {
+  margin: 6px 2px 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 .is-hidden {
@@ -183,18 +174,11 @@ select:focus {
 
 @media (max-width: 560px) {
   .app-shell {
-    width: min(100% - 18px, 820px);
-  }
-
-  .app-header__content {
-    padding-block: 13px;
+    width: min(100% - 18px, 760px);
   }
 
   .app-main {
-    padding-top: 10px;
-  }
-
-  .panel {
-    padding: 14px;
+    min-height: calc(100vh - 52px);
+    padding-top: 4px;
   }
 }

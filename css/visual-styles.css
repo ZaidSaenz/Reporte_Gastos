@@ -4,12 +4,12 @@
 
 :root,
 [data-visual-style="modern"] {
-  --panel-radius: 16px;
-  --control-radius: 10px;
+  --panel-radius: 20px;
+  --control-radius: 11px;
   --small-radius: 10px;
   --panel-border-width: 1px;
   --panel-shadow:
-    0 14px 35px var(--shadow-color);
+    0 18px 44px var(--shadow-color);
 }
 
 [data-visual-style="modern"] body {
@@ -30,21 +30,10 @@
 }
 
 [data-visual-style="modern"]
-  .app-header {
-  color: var(--header-text);
-  background:
-    linear-gradient(
-      135deg,
-      var(--accent),
-      var(--accent-dark)
-    );
-  box-shadow:
-    0 8px 22px var(--shadow-color);
-}
-
-[data-visual-style="modern"]
-  .app-header .eyebrow {
-  color: rgba(255, 255, 255, 0.78);
+  .app-header .icon-button {
+  color: var(--text-primary);
+  background: var(--surface);
+  box-shadow: 0 8px 22px var(--shadow-color);
 }
 
 /* ==========================================================
@@ -57,7 +46,7 @@
   --small-radius: 0;
   --panel-border-width: 2px;
   --panel-shadow:
-    6px 6px 0 var(--shadow-color);
+    7px 7px 0 var(--shadow-color);
 }
 
 [data-visual-style="pixel"] body {
@@ -65,7 +54,6 @@
     "Courier New",
     ui-monospace,
     monospace;
-
   background-image:
     linear-gradient(
       90deg,
@@ -76,25 +64,13 @@
       rgba(255, 255, 255, 0.025) 1px,
       transparent 1px
     );
-
-  background-size:
-    16px 16px;
+  background-size: 16px 16px;
 }
 
 [data-visual-style="pixel"]
-  .app-header {
-  color: var(--header-text);
-  border-bottom:
-    4px solid var(--accent-light);
-  background: var(--accent-dark);
-  box-shadow:
-    0 5px 0 var(--shadow-color);
-}
-
+  .home-card,
 [data-visual-style="pixel"]
-  .panel,
-[data-visual-style="pixel"]
-  .settings-dialog {
+  .app-dialog {
   clip-path: polygon(
     8px 0,
     calc(100% - 8px) 0,
@@ -114,19 +90,26 @@
 [data-visual-style="pixel"]
   .subcategory-option,
 [data-visual-style="pixel"]
-  .recent-category-card,
+  .icon-button,
 [data-visual-style="pixel"]
-  .icon-button {
+  .history-row__details {
   text-transform: uppercase;
   letter-spacing: 0.035em;
-  box-shadow:
-    3px 3px 0 var(--shadow-color);
+  box-shadow: 3px 3px 0 var(--shadow-color);
 }
 
 [data-visual-style="pixel"]
-  .summary-item strong {
-  font-variant-numeric:
-    tabular-nums;
+  .add-expense-button {
+  border: 3px solid var(--accent-light);
+  border-radius: 0;
+  box-shadow: 7px 7px 0 var(--shadow-color);
+}
+
+[data-visual-style="pixel"]
+  .home-card__amount,
+[data-visual-style="pixel"]
+  .home-card__budget strong {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==========================================================
@@ -134,12 +117,12 @@
 ========================================================== */
 
 [data-visual-style="office"] {
-  --panel-radius: 10px;
+  --panel-radius: 12px;
   --control-radius: 7px;
   --small-radius: 7px;
   --panel-border-width: 1px;
   --panel-shadow:
-    0 6px 20px var(--shadow-color);
+    0 7px 22px var(--shadow-color);
 }
 
 [data-visual-style="office"] body {
@@ -148,31 +131,17 @@
       rgba(0, 0, 0, 0.018) 1px,
       transparent 1px
     );
-  background-size:
-    100% 28px;
+  background-size: 100% 28px;
 }
 
 [data-visual-style="office"]
-  .app-header {
-  color: var(--text-primary);
-  border-bottom:
-    3px solid var(--accent);
-  background: var(--surface);
-  box-shadow:
-    0 4px 15px var(--shadow-color);
-}
-
+  .button--primary,
 [data-visual-style="office"]
-  .app-header .eyebrow {
-  color: var(--text-secondary);
-}
-
-[data-visual-style="office"]
-  .button--primary {
+  .add-expense-button {
   background: var(--accent);
 }
 
 [data-visual-style="office"]
-  .panel {
-  backdrop-filter: none;
+  .add-expense-button {
+  box-shadow: 0 10px 24px var(--shadow-color);
 }

@@ -53,18 +53,9 @@
 <body>
   <header class="app-header">
     <div class="app-shell app-header__content">
-      <div>
-        <p
-          class="eyebrow"
-          data-i18n="app.subtitle"
-        >
-          Registro privado en tu dispositivo
-        </p>
-
-        <h1 data-i18n="app.title">
-          Control de gastos
-        </h1>
-      </div>
+      <h1 class="visually-hidden" data-i18n="app.title">
+        Control de gastos
+      </h1>
 
       <button
         id="open-settings-button"
@@ -80,83 +71,225 @@
 
   <main class="app-shell app-main">
     <section
-      class="panel dashboard-panel"
-      aria-labelledby="dashboard-title"
+      class="home-card"
+      aria-labelledby="current-spending-label"
     >
-      <div class="section-heading">
-        <div>
-          <p
-            class="eyebrow"
-            data-i18n="dashboard.subtitle"
-          >
-            Resumen de tus movimientos
-          </p>
+      <div class="home-card__summary">
+        <p
+          id="current-spending-label"
+          class="home-card__label"
+          data-i18n="dashboard.currentSpending"
+        >
+          Gasto actual
+        </p>
 
-          <h2
-            id="dashboard-title"
-            data-i18n="dashboard.title"
-          >
-            Gasto acumulado
-          </h2>
+        <strong
+          id="current-spending-value"
+          class="home-card__amount"
+        >
+          $0.00
+        </strong>
+
+        <div
+          id="remaining-budget-block"
+          class="home-card__budget is-hidden"
+        >
+          <span data-i18n="dashboard.remainingBudget">
+            Presupuesto restante
+          </span>
+
+          <strong id="remaining-budget-value">
+            $0.00
+          </strong>
         </div>
       </div>
 
-      <div
-        id="expense-summary"
-        class="expense-summary"
-      ></div>
+      <button
+        id="open-expense-button"
+        class="add-expense-button"
+        type="button"
+        data-i18n-aria-label="expense.open"
+        aria-label="Agregar gasto"
+      >
+        <span
+          id="add-expense-icon-fallback"
+          class="add-expense-button__fallback"
+          aria-hidden="true"
+        >
+          +
+        </span>
+
+        <img
+          id="add-expense-icon"
+          class="add-expense-button__image is-hidden"
+          src=""
+          alt=""
+        >
+      </button>
+
+      <button
+        id="open-history-button"
+        class="history-launcher"
+        type="button"
+      >
+        <span data-i18n="history.title">
+          Historial de gastos
+        </span>
+
+        <span aria-hidden="true">›</span>
+      </button>
     </section>
 
-    <section
-      id="new-expense-panel"
-      class="panel"
-      aria-labelledby="new-expense-title"
-    >
-      <div class="section-heading">
-        <div>
-          <p
-            class="eyebrow"
-            data-i18n="expense.subtitle"
-          >
-            Registro rápido
-          </p>
+    <p
+      id="app-message"
+      class="app-message"
+      aria-live="polite"
+    ></p>
+  </main>
 
-          <h2
-            id="new-expense-title"
-            data-i18n="expense.title"
+  <!-- =====================================================
+       ADD OR EDIT EXPENSE
+  ====================================================== -->
+  <dialog
+    id="expense-dialog"
+    class="app-dialog expense-dialog"
+  >
+    <div class="dialog-header">
+      <div>
+        <p
+          class="eyebrow"
+          data-i18n="expense.subtitle"
+        >
+          Registro rápido
+        </p>
+
+        <h2
+          id="expense-dialog-title"
+          data-i18n="expense.title"
+        >
+          Nuevo gasto
+        </h2>
+      </div>
+
+      <button
+        id="close-expense-button"
+        class="icon-button"
+        type="button"
+        data-i18n-aria-label="general.close"
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+    </div>
+
+    <form
+      id="expense-form"
+      class="expense-form"
+      novalidate
+    >
+      <div class="field field--amount">
+        <label
+          for="expense-amount"
+          data-i18n="expense.amount"
+        >
+          Importe
+        </label>
+
+        <div class="currency-input currency-input--large">
+          <span aria-hidden="true">$</span>
+
+          <input
+            id="expense-amount"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            placeholder="0.00"
           >
-            Nuevo gasto
-          </h2>
         </div>
       </div>
 
-      <form
-        id="expense-form"
-        class="expense-form"
-        novalidate
+      <fieldset class="category-fieldset">
+        <legend data-i18n="expense.category">
+          Categoría
+        </legend>
+
+        <div
+          id="category-selector"
+          class="category-selector"
+        ></div>
+      </fieldset>
+
+      <div
+        id="custom-category-field"
+        class="field is-hidden"
       >
-        <div class="form-grid">
-          <div class="field">
+        <label
+          for="custom-category"
+          data-i18n="expense.customCategory"
+        >
+          Nombre de la categoría
+        </label>
+
+        <input
+          id="custom-category"
+          type="text"
+          autocomplete="off"
+        >
+      </div>
+
+      <details class="expense-more-details">
+        <summary data-i18n="expense.moreDetails">
+          Más detalles
+        </summary>
+
+        <div class="expense-more-details__content">
+          <fieldset
+            id="subcategory-section"
+            class="category-fieldset is-hidden"
+          >
+            <legend data-i18n="expense.subcategory">
+              Subcategoría
+            </legend>
+
+            <div
+              id="subcategory-selector"
+              class="subcategory-selector"
+            ></div>
+          </fieldset>
+
+          <div
+            id="custom-subcategory-field"
+            class="field is-hidden"
+          >
             <label
-              for="expense-amount"
-              data-i18n="expense.amount"
+              for="custom-subcategory"
+              data-i18n="expense.customSubcategory"
             >
-              Importe
+              Especifica el tipo de gasto
             </label>
 
-            <div class="currency-input">
-              <span aria-hidden="true">
-                $
-              </span>
+            <input
+              id="custom-subcategory"
+              type="text"
+              autocomplete="off"
+            >
+          </div>
 
-              <input
-                id="expense-amount"
-                type="text"
-                inputmode="decimal"
-                autocomplete="off"
-                placeholder="0.00"
-              >
-            </div>
+          <div class="field">
+            <label
+              for="expense-description"
+              data-i18n="expense.description"
+            >
+              Descripción opcional
+            </label>
+
+            <input
+              id="expense-description"
+              type="text"
+              autocomplete="off"
+              data-i18n-placeholder="expense.descriptionPlaceholder"
+              placeholder="Ej. Compra semanal"
+            >
           </div>
 
           <div class="field">
@@ -173,181 +306,133 @@
             >
           </div>
         </div>
+      </details>
 
-        <fieldset class="category-fieldset">
-          <legend data-i18n="expense.category">
-            Categoría
-          </legend>
-
-          <div
-            id="category-selector"
-            class="category-selector"
-          ></div>
-        </fieldset>
-
-        <div
-          id="custom-category-field"
-          class="field is-hidden"
+      <div class="form-actions">
+        <button
+          id="save-expense-button"
+          class="button button--primary"
+          type="button"
+          data-i18n="expense.save"
         >
-          <label
-            for="custom-category"
-            data-i18n="expense.customCategory"
-          >
-            Nombre de la categoría
-          </label>
+          Guardar gasto
+        </button>
 
-          <input
-            id="custom-category"
-            type="text"
-            autocomplete="off"
-          >
-        </div>
-
-        <fieldset
-          id="subcategory-section"
-          class="category-fieldset is-hidden"
+        <button
+          id="cancel-edit-button"
+          class="button button--secondary is-hidden"
+          type="button"
+          data-i18n="expense.cancelEdit"
         >
-          <legend data-i18n="expense.subcategory">
-            Subcategoría
-          </legend>
-
-          <div
-            id="subcategory-selector"
-            class="subcategory-selector"
-          ></div>
-        </fieldset>
-
-        <div
-          id="custom-subcategory-field"
-          class="field is-hidden"
-        >
-          <label
-            for="custom-subcategory"
-            data-i18n="expense.customSubcategory"
-          >
-            Especifica el tipo de gasto
-          </label>
-
-          <input
-            id="custom-subcategory"
-            type="text"
-            autocomplete="off"
-          >
-        </div>
-
-        <div class="field">
-          <label
-            for="expense-description"
-            data-i18n="expense.description"
-          >
-            Descripción opcional
-          </label>
-
-          <input
-            id="expense-description"
-            type="text"
-            autocomplete="off"
-            data-i18n-placeholder="expense.descriptionPlaceholder"
-            placeholder="Ej. Compra semanal"
-          >
-        </div>
-
-        <div class="form-actions">
-          <button
-            id="save-expense-button"
-            class="button button--primary"
-            type="button"
-            data-i18n="expense.save"
-          >
-            Guardar gasto
-          </button>
-
-          <button
-            id="cancel-edit-button"
-            class="button button--secondary is-hidden"
-            type="button"
-            data-i18n="expense.cancelEdit"
-          >
-            Cancelar edición
-          </button>
-        </div>
-
-        <p
-          id="app-message"
-          class="app-message"
-          aria-live="polite"
-        ></p>
-      </form>
-    </section>
-
-    <section
-      id="recent-categories-panel"
-      class="panel is-hidden"
-      aria-labelledby="recent-categories-title"
-    >
-      <div class="section-heading">
-        <div>
-          <p
-            class="eyebrow"
-            data-i18n="recent.subtitle"
-          >
-            Acceso rápido
-          </p>
-
-          <h2
-            id="recent-categories-title"
-            data-i18n="recent.title"
-          >
-            Categorías recientes
-          </h2>
-        </div>
+          Cancelar edición
+        </button>
       </div>
+    </form>
+  </dialog>
 
-      <p
-        class="helper-text"
-        data-i18n="recent.help"
+  <!-- =====================================================
+       HISTORY OVERLAY
+  ====================================================== -->
+  <dialog
+    id="history-dialog"
+    class="history-overlay"
+  >
+    <div class="overlay-header">
+      <button
+        id="close-history-button"
+        class="icon-button"
+        type="button"
+        data-i18n-aria-label="history.close"
+        aria-label="Cerrar historial"
       >
-        Toca una categoría para usarla en el formulario.
-      </p>
+        ‹
+      </button>
 
-      <div
-        id="recent-categories"
-        class="recent-categories"
-      ></div>
-    </section>
+      <h2 data-i18n="history.title">
+        Historial de gastos
+      </h2>
 
-    <section
-      class="panel"
-      aria-labelledby="expense-history-title"
-    >
-      <div class="section-heading">
-        <div>
-          <p
-            class="eyebrow"
-            data-i18n="history.subtitle"
-          >
-            Movimientos por día
-          </p>
+      <span class="overlay-header__spacer" aria-hidden="true"></span>
+    </div>
 
-          <h2
-            id="expense-history-title"
-            data-i18n="history.title"
-          >
-            Historial de gastos
-          </h2>
-        </div>
+    <div
+      id="expense-history"
+      class="expense-history"
+    ></div>
+  </dialog>
+
+  <!-- =====================================================
+       EXPENSE DETAILS
+  ====================================================== -->
+  <dialog
+    id="expense-details-dialog"
+    class="app-dialog details-dialog"
+  >
+    <div class="dialog-header">
+      <h2 data-i18n="history.detailsTitle">
+        Detalles del gasto
+      </h2>
+
+      <button
+        id="close-expense-details-button"
+        class="icon-button"
+        type="button"
+        data-i18n-aria-label="general.close"
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+    </div>
+
+    <dl class="expense-details-list">
+      <div>
+        <dt data-i18n="expense.amount">Importe</dt>
+        <dd id="details-amount">$0.00</dd>
       </div>
 
-      <div
-        id="expense-history"
-        class="expense-history"
-      ></div>
-    </section>
-  </main>
+      <div>
+        <dt data-i18n="expense.category">Categoría</dt>
+        <dd id="details-category">—</dd>
+      </div>
 
+      <div>
+        <dt data-i18n="expense.date">Fecha</dt>
+        <dd id="details-date">—</dd>
+      </div>
+
+      <div>
+        <dt data-i18n="expense.description">Descripción</dt>
+        <dd id="details-description">—</dd>
+      </div>
+    </dl>
+
+    <div class="details-actions">
+      <button
+        id="edit-expense-detail-button"
+        class="button button--secondary"
+        type="button"
+        data-i18n="history.edit"
+      >
+        Editar
+      </button>
+
+      <button
+        id="delete-expense-detail-button"
+        class="button button--danger"
+        type="button"
+        data-i18n="history.delete"
+      >
+        Eliminar
+      </button>
+    </div>
+  </dialog>
+
+  <!-- =====================================================
+       SETTINGS
+  ====================================================== -->
   <dialog
     id="settings-dialog"
-    class="settings-dialog"
+    class="app-dialog settings-dialog"
   >
     <div class="dialog-header">
       <h2 data-i18n="settings.title">
@@ -375,13 +460,8 @@
         </label>
 
         <select id="select-language">
-          <option value="es">
-            Español
-          </option>
-
-          <option value="en">
-            English
-          </option>
+          <option value="es">Español</option>
+          <option value="en">English</option>
         </select>
       </div>
 
@@ -394,24 +474,13 @@
         </label>
 
         <select id="select-visual-style">
-          <option
-            value="modern"
-            data-i18n="settings.modern"
-          >
+          <option value="modern" data-i18n="settings.modern">
             Moderno
           </option>
-
-          <option
-            value="pixel"
-            data-i18n="settings.pixel"
-          >
+          <option value="pixel" data-i18n="settings.pixel">
             Pixel art
           </option>
-
-          <option
-            value="office"
-            data-i18n="settings.office"
-          >
+          <option value="office" data-i18n="settings.office">
             Oficina
           </option>
         </select>
@@ -426,30 +495,14 @@
         </label>
 
         <select id="select-palette">
-          <option value="magenta" data-i18n="palettes.magenta">
-            Magenta
-          </option>
-          <option value="ocean" data-i18n="palettes.ocean">
-            Océano
-          </option>
-          <option value="emerald" data-i18n="palettes.emerald">
-            Esmeralda
-          </option>
-          <option value="violet" data-i18n="palettes.violet">
-            Violeta
-          </option>
-          <option value="amber" data-i18n="palettes.amber">
-            Ámbar
-          </option>
-          <option value="powder" data-i18n="palettes.powder">
-            Azul pastel
-          </option>
-          <option value="sage" data-i18n="palettes.sage">
-            Verde salvia
-          </option>
-          <option value="warmGray" data-i18n="palettes.warmGray">
-            Gris cálido
-          </option>
+          <option value="magenta" data-i18n="palettes.magenta">Magenta</option>
+          <option value="ocean" data-i18n="palettes.ocean">Océano</option>
+          <option value="emerald" data-i18n="palettes.emerald">Esmeralda</option>
+          <option value="violet" data-i18n="palettes.violet">Violeta</option>
+          <option value="amber" data-i18n="palettes.amber">Ámbar</option>
+          <option value="powder" data-i18n="palettes.powder">Azul pastel</option>
+          <option value="sage" data-i18n="palettes.sage">Verde salvia</option>
+          <option value="warmGray" data-i18n="palettes.warmGray">Gris cálido</option>
         </select>
       </div>
 
@@ -466,6 +519,41 @@
           <option value="USD">USD</option>
           <option value="EUR">EUR</option>
         </select>
+      </div>
+
+      <div class="field">
+        <label
+          for="monthly-budget-input"
+          data-i18n="settings.monthlyBudget"
+        >
+          Presupuesto mensual
+        </label>
+
+        <input
+          id="monthly-budget-input"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="0.00"
+        >
+
+        <p
+          class="field-help"
+          data-i18n="settings.monthlyBudgetHelp"
+        >
+          Déjalo vacío para ocultarlo.
+        </p>
+      </div>
+
+      <div class="field">
+        <label
+          for="select-add-button-icon"
+          data-i18n="settings.addButtonIcon"
+        >
+          Icono del botón
+        </label>
+
+        <select id="select-add-button-icon"></select>
       </div>
     </div>
 
@@ -506,39 +594,12 @@
     >
   </dialog>
 
-  <script
-    src="./js/categories.js"
-    defer
-  ></script>
-
-  <script
-    src="./js/storage.js"
-    defer
-  ></script>
-
-  <script
-    src="./js/i18n.js"
-    defer
-  ></script>
-
-  <script
-    src="./js/settings.js"
-    defer
-  ></script>
-
-  <script
-    src="./js/history.js"
-    defer
-  ></script>
-
-  <script
-    src="./js/copy-history.js"
-    defer
-  ></script>
-
-  <script
-    src="./js/app.js"
-    defer
-  ></script>
+  <script src="./js/categories.js" defer></script>
+  <script src="./js/storage.js" defer></script>
+  <script src="./js/i18n.js" defer></script>
+  <script src="./js/settings.js" defer></script>
+  <script src="./js/history.js" defer></script>
+  <script src="./js/copy-history.js" defer></script>
+  <script src="./js/app.js" defer></script>
 </body>
 </html>
