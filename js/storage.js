@@ -1,59 +1,64 @@
 // ============================================================
-// ALMACENAMIENTO LOCAL
+// LOCAL APPLICATION STORAGE
 // ============================================================
 //
-// Guarda las ventas en el navegador del dispositivo.
+// Expenses and settings are stored only in the current browser.
+// localStorage is persistent but not encrypted. Clearing browser
+// data removes the stored information.
 //
 // ============================================================
 
-const CLAVE_VENTAS = "tuny_ancla_ventas_v1";
-const CLAVE_RECIENTES = "tuny_ancla_recientes_v1";
+const STORAGE_KEYS = Object.freeze({
+  EXPENSES: "expense_tracker_expenses_v1",
+  RECENT_CATEGORIES: "expense_tracker_recent_categories_v1",
+  SETTINGS: "expense_tracker_settings_v1"
+});
 
-const LIMITE_RECIENTES = 6;
+const RECENT_CATEGORIES_LIMIT = 6;
 
+const DEFAULT_SETTINGS = Object.freeze({
+  language: "es",
+  visualStyle: "modern",
+  palette: "magenta",
+  currency: "MXN"
+});
 
-// ============================================================
-// LECTURA Y ESCRITURA SEGURA
-// ============================================================
-
-function leerJSON(clave, valorPredeterminado) {
+function readJSON(key, defaultValue) {
   try {
-    const texto = localStorage.getItem(clave);
+    const storedValue = localStorage.getItem(key);
 
-    return texto
-      ? JSON.parse(texto)
-      : valorPredeterminado;
-
+    return storedValue !== null
+      ? JSON.parse(storedValue)
+      : defaultValue;
   } catch (error) {
-    console.error(`No fue posible leer ${clave}:`, error);
+    console.error(
+      `Unable to read local storage key "${key}":`,
+      error
+    );
 
-    return valorPredeterminado;
+    return defaultValue;
   }
 }
 
-
-function guardarJSON(clave, valor) {
+function writeJSON(key, value) {
   try {
     localStorage.setItem(
-      clave,
-      JSON.stringify(valor)
+      key,
+      JSON.stringify(value)
     );
 
     return true;
-
   } catch (error) {
-    console.error(`No fue posible guardar ${clave}:`, error);
+    console.error(
+      `Unable to save local storage key "${key}":`,
+      error
+    );
 
     return false;
   }
 }
 
-
-// ============================================================
-// IDENTIFICADOR ÚNICO PARA CADA VENTA
-// ============================================================
-
-function crearIdVenta() {
+function createExpenseId() {
   if (
     window.crypto &&
     typeof window.crypto.randomUUID === "function"
@@ -61,106 +66,400 @@ function crearIdVenta() {
     return window.crypto.randomUUID();
   }
 
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `${Date.now()}-${Math.random()
+    .toString(16)
+    .slice(2)}`;
 }
 
+function getLocalDateKey(date = new Date()) {
+  const value =
+    date instanceof Date
+      ? date
+      : new Date(date);
 
-// ============================================================
-// VENTAS
-// ============================================================
+  if (Number.isNaN(value.getTime())) {
+    return "";
+  }
 
-function obtenerVentas() {
-  return leerJSON(CLAVE_VENTAS, []);
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1)
+    .padStart(2, "0");
+  const day = String(value.getDate())
+    .padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
+function createLocalDateFromKey(dateKey) {
+  if (
+    typeof dateKey !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(dateKey)
+  ) {
+    return null;
+  }
 
-function guardarVentas(ventas) {
-  return guardarJSON(CLAVE_VENTAS, ventas);
+  const [year, month, day] = dateKey
+    .split("-")
+    .map(Number);
+
+  const date = new Date(
+    year,
+    month - 1,
+    day
+  );
+
+  return Number.isNaN(date.getTime())
+    ? null
+    : date;
 }
 
+function normalizeStoredExpense(expense) {
+  const amount = Number(expense?.amount);
+  const date =
+    typeof expense?.date === "string"
+      ? expense.date
+      : getLocalDateKey();
 
-function agregarVenta(venta) {
-  const ventas = obtenerVentas();
+  return {
+    id:
+      String(expense?.id || createExpenseId()),
 
-  ventas.unshift(venta);
+    amount:
+      Number.isFinite(amount) && amount > 0
+        ? Number(amount.toFixed(2))
+        : 0,
 
-  return guardarVentas(ventas);
+    categoryId:
+      String(expense?.categoryId || ""),
+
+    subcategoryId:
+      String(expense?.subcategoryId || ""),
+
+    customCategory:
+      String(expense?.customCategory || "").trim(),
+
+    customSubcategory:
+      String(expense?.customSubcategory || "").trim(),
+
+    description:
+      String(expense?.description || "").trim(),
+
+    date,
+
+    createdAt:
+      String(
+        expense?.createdAt ||
+        new Date().toISOString()
+      ),
+
+    updatedAt:
+      expense?.updatedAt
+        ? String(expense.updatedAt)
+        : ""
+  };
 }
 
+function getExpenses() {
+  const storedExpenses = readJSON(
+    STORAGE_KEYS.EXPENSES,
+    []
+  );
 
-function eliminarVentaPorId(idVenta) {
-  const ventasActualizadas =
-    obtenerVentas().filter(
-      (venta) => venta.id !== idVenta
+  if (!Array.isArray(storedExpenses)) {
+    return [];
+  }
+
+  return storedExpenses
+    .map(normalizeStoredExpense)
+    .filter(
+      (expense) =>
+        expense.amount > 0 &&
+        expense.categoryId
+    )
+    .sort(
+      (left, right) =>
+        new Date(right.createdAt) -
+        new Date(left.createdAt)
+    );
+}
+
+function saveExpenses(expenses) {
+  if (!Array.isArray(expenses)) {
+    console.error(
+      "Expenses must be stored as an array."
     );
 
-  return guardarVentas(ventasActualizadas);
-}
+    return false;
+  }
 
-
-// ============================================================
-// FILTRAR LAS VENTAS DEL DÍA ACTUAL
-// ============================================================
-
-function obtenerClaveFechaLocal(fecha = new Date()) {
-  const valor =
-    fecha instanceof Date
-      ? fecha
-      : new Date(fecha);
-
-  const anio = valor.getFullYear();
-
-  const mes =
-    String(valor.getMonth() + 1)
-      .padStart(2, "0");
-
-  const dia =
-    String(valor.getDate())
-      .padStart(2, "0");
-
-  return `${anio}-${mes}-${dia}`;
-}
-
-
-function obtenerVentasDeHoy() {
-  const hoy = obtenerClaveFechaLocal();
-
-  return obtenerVentas().filter(
-    (venta) =>
-      obtenerClaveFechaLocal(venta.fechaISO) === hoy
+  return writeJSON(
+    STORAGE_KEYS.EXPENSES,
+    expenses.map(normalizeStoredExpense)
   );
 }
 
+function addExpense(expense) {
+  const expenses = getExpenses();
 
-// ============================================================
-// PRODUCTOS RECIENTES
-// ============================================================
-
-function obtenerProductosRecientes() {
-  return leerJSON(CLAVE_RECIENTES, []);
-}
-
-
-function registrarProductosRecientes(productos) {
-  let recientes = obtenerProductosRecientes();
-
-  productos.forEach(({ producto, precio }) => {
-    recientes =
-      recientes.filter(
-        (item) => item.producto !== producto
-      );
-
-    recientes.unshift({
-      producto,
-      precio
-    });
+  const newExpense = normalizeStoredExpense({
+    ...expense,
+    id: expense?.id || createExpenseId(),
+    createdAt:
+      expense?.createdAt ||
+      new Date().toISOString()
   });
 
-  recientes =
-    recientes.slice(0, LIMITE_RECIENTES);
+  if (
+    newExpense.amount <= 0 ||
+    !newExpense.categoryId
+  ) {
+    return false;
+  }
 
-  return guardarJSON(
-    CLAVE_RECIENTES,
-    recientes
+  expenses.unshift(newExpense);
+
+  return saveExpenses(expenses);
+}
+
+function getExpenseById(expenseId) {
+  return (
+    getExpenses().find(
+      (expense) => expense.id === expenseId
+    ) || null
   );
+}
+
+function updateExpenseById(
+  expenseId,
+  changes
+) {
+  let expenseFound = false;
+
+  const updatedExpenses = getExpenses()
+    .map((expense) => {
+      if (expense.id !== expenseId) {
+        return expense;
+      }
+
+      expenseFound = true;
+
+      return normalizeStoredExpense({
+        ...expense,
+        ...changes,
+        id: expense.id,
+        createdAt: expense.createdAt,
+        updatedAt: new Date().toISOString()
+      });
+    });
+
+  if (!expenseFound) {
+    return false;
+  }
+
+  return saveExpenses(updatedExpenses);
+}
+
+function deleteExpenseById(expenseId) {
+  const expenses = getExpenses();
+
+  const updatedExpenses = expenses.filter(
+    (expense) => expense.id !== expenseId
+  );
+
+  if (
+    updatedExpenses.length ===
+    expenses.length
+  ) {
+    return false;
+  }
+
+  return saveExpenses(updatedExpenses);
+}
+
+function getExpensesByDate(date) {
+  const targetDate =
+    typeof date === "string"
+      ? date
+      : getLocalDateKey(date);
+
+  if (!targetDate) {
+    return [];
+  }
+
+  return getExpenses().filter(
+    (expense) => expense.date === targetDate
+  );
+}
+
+function getTodayExpenses() {
+  return getExpensesByDate(
+    getLocalDateKey()
+  );
+}
+
+function calculateExpenseTotal(expenses) {
+  if (!Array.isArray(expenses)) {
+    return 0;
+  }
+
+  return Number(
+    expenses.reduce(
+      (total, expense) =>
+        total +
+        (Number(expense.amount) || 0),
+      0
+    ).toFixed(2)
+  );
+}
+
+function getRecentCategories() {
+  const recentCategories = readJSON(
+    STORAGE_KEYS.RECENT_CATEGORIES,
+    []
+  );
+
+  return Array.isArray(recentCategories)
+    ? recentCategories
+    : [];
+}
+
+function registerRecentCategory({
+  categoryId,
+  subcategoryId = "",
+  customCategory = "",
+  customSubcategory = ""
+}) {
+  if (!categoryId) {
+    return false;
+  }
+
+  const newItem = {
+    categoryId,
+    subcategoryId,
+    customCategory:
+      String(customCategory).trim(),
+    customSubcategory:
+      String(customSubcategory).trim()
+  };
+
+  let recentCategories =
+    getRecentCategories();
+
+  recentCategories = recentCategories.filter(
+    (item) =>
+      !(
+        item.categoryId ===
+          newItem.categoryId &&
+        item.subcategoryId ===
+          newItem.subcategoryId &&
+        item.customCategory ===
+          newItem.customCategory &&
+        item.customSubcategory ===
+          newItem.customSubcategory
+      )
+  );
+
+  recentCategories.unshift(newItem);
+
+  return writeJSON(
+    STORAGE_KEYS.RECENT_CATEGORIES,
+    recentCategories.slice(
+      0,
+      RECENT_CATEGORIES_LIMIT
+    )
+  );
+}
+
+function getSettings() {
+  const savedSettings = readJSON(
+    STORAGE_KEYS.SETTINGS,
+    {}
+  );
+
+  return {
+    ...DEFAULT_SETTINGS,
+    ...(
+      savedSettings &&
+      typeof savedSettings === "object"
+        ? savedSettings
+        : {}
+    )
+  };
+}
+
+function saveSettings(changes) {
+  const nextSettings = {
+    ...getSettings(),
+    ...changes
+  };
+
+  return writeJSON(
+    STORAGE_KEYS.SETTINGS,
+    nextSettings
+  );
+}
+
+function createLocalBackup() {
+  return {
+    application: "expense-tracker",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    expenses: getExpenses(),
+    recentCategories: getRecentCategories(),
+    settings: getSettings()
+  };
+}
+
+function restoreLocalBackup(backup) {
+  if (
+    !backup ||
+    backup.application !==
+      "expense-tracker" ||
+    backup.version !== 1 ||
+    !Array.isArray(backup.expenses)
+  ) {
+    return false;
+  }
+
+  const expensesSaved = saveExpenses(
+    backup.expenses
+  );
+
+  const categoriesSaved = writeJSON(
+    STORAGE_KEYS.RECENT_CATEGORIES,
+    Array.isArray(
+      backup.recentCategories
+    )
+      ? backup.recentCategories
+      : []
+  );
+
+  const settingsSaved = saveSettings(
+    backup.settings || {}
+  );
+
+  return (
+    expensesSaved &&
+    categoriesSaved &&
+    settingsSaved
+  );
+}
+
+function clearApplicationData() {
+  try {
+    Object.values(STORAGE_KEYS)
+      .forEach(
+        (key) =>
+          localStorage.removeItem(key)
+      );
+
+    return true;
+  } catch (error) {
+    console.error(
+      "Unable to clear application data:",
+      error
+    );
+
+    return false;
+  }
 }
