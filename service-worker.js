@@ -1,15 +1,6 @@
 // ============================================================
 // OFFLINE APPLICATION CACHE
 // ============================================================
-//
-// Stores the essential application files so the expense
-// tracker can continue working without an internet connection.
-//
-// Increase CACHE_VERSION whenever important files change:
-//
-// v1 -> v2 -> v3
-//
-// ============================================================
 
 const CACHE_PREFIX =
   "expense-tracker";
@@ -20,36 +11,24 @@ const CACHE_VERSION =
 const CACHE_NAME =
   `${CACHE_PREFIX}-${CACHE_VERSION}`;
 
-
-// ============================================================
-// APPLICATION FILES
-// ============================================================
-//
-// Important:
-//
-// Every file listed here must exist. If one of them is missing,
-// the service worker installation will fail.
-//
-// ============================================================
-
 const APP_FILES = [
   "./",
   "./index.html",
   "./manifest.json",
 
-  "./css/styles.css",
+  "./css/palettes.css",
+  "./css/base.css",
+  "./css/components.css",
+  "./css/visual-styles.css",
 
   "./js/categories.js",
   "./js/storage.js",
+  "./js/i18n.js",
+  "./js/settings.js",
   "./js/history.js",
   "./js/copy-history.js",
   "./js/app.js"
 ];
-
-
-// ============================================================
-// INSTALL AND CACHE APPLICATION FILES
-// ============================================================
 
 self.addEventListener(
   "install",
@@ -62,17 +41,11 @@ self.addEventListener(
             cache.addAll(APP_FILES)
         )
         .then(
-          () =>
-            self.skipWaiting()
+          () => self.skipWaiting()
         )
     );
   }
 );
-
-
-// ============================================================
-// REMOVE OLD APPLICATION CACHE VERSIONS
-// ============================================================
 
 self.addEventListener(
   "activate",
@@ -100,17 +73,11 @@ self.addEventListener(
             )
         )
         .then(
-          () =>
-            self.clients.claim()
+          () => self.clients.claim()
         )
     );
   }
 );
-
-
-// ============================================================
-// SERVE CACHED FILES WHEN OFFLINE
-// ============================================================
 
 self.addEventListener(
   "fetch",
@@ -141,29 +108,23 @@ self.addEventListener(
           }
         )
         .then(
-          (cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-
-            return fetch(request)
-              .catch(
-                () => {
-                  if (
-                    request.mode ===
-                    "navigate"
-                  ) {
-                    return caches.match(
-                      "./index.html"
-                    );
-                  }
-
-                  throw new Error(
-                    "Resource unavailable while offline."
+          (cachedResponse) =>
+            cachedResponse ||
+            fetch(request)
+              .catch(() => {
+                if (
+                  request.mode ===
+                  "navigate"
+                ) {
+                  return caches.match(
+                    "./index.html"
                   );
                 }
-              );
-          }
+
+                throw new Error(
+                  "Resource unavailable while offline."
+                );
+              })
         )
     );
   }

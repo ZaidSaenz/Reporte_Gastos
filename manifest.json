@@ -1,11 +1,12 @@
 {
-  "name": "Reporte de ventas Tuny-Ancla",
-  "short_name": "Ventas Tuny",
-  "description": "Aplicación para registrar ventas diarias Tuny-Ancla.",
-  "start_url": "./index.html",
+  "id": "./",
+  "name": "Expense Tracker",
+  "short_name": "Expenses",
+  "description": "A private and customizable application for tracking daily expenses directly on your device.",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#08090a",
   "theme_color": "#d10082",
-  "lang": "es-MX"
+  "lang": "en"
 }
