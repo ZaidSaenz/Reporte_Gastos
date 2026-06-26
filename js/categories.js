@@ -1,101 +1,161 @@
 // ============================================================
-// CATÁLOGO OFICIAL DE PRODUCTOS TUNY - ANCLA
+// DEFAULT EXPENSE CATEGORIES
 // ============================================================
 //
-// IMPORTANTE:
-//
-// - Los nombres deben conservarse exactamente como aparecen
-//   en el formato PDF oficial.
-// - El orden también debe mantenerse.
-// - Cada posición corresponde a un renglón del PDF.
-// - No ordenar alfabéticamente esta lista.
+// Category and subcategory IDs are persistent data identifiers.
+// Do not rename existing IDs after releasing the application.
+// Visible labels are provided by the translation module.
 //
 // ============================================================
 
-const CATALOGO_PRODUCTOS = [
-  "TUNY CLÁSICO AGUA 130 g",
-  "TUNY CLÁSICO ACEITE 130 g",
-  "TUNY CLÁSICO AGUA 295 g",
-  "TUNY CLÁSICO ACEITE 295 g",
+const EXPENSE_CATEGORIES = Object.freeze([
+  {
+    id: "food",
+    subcategories: [
+      "groceries",
+      "restaurants",
+      "delivery",
+      "snacks",
+      "other"
+    ]
+  },
+  {
+    id: "transportation",
+    subcategories: [
+      "fuel",
+      "publicTransport",
+      "taxi",
+      "parking",
+      "vehicleMaintenance",
+      "other"
+    ]
+  },
+  {
+    id: "home",
+    subcategories: [
+      "rent",
+      "cleaning",
+      "repairs",
+      "furniture",
+      "householdItems",
+      "other"
+    ]
+  },
+  {
+    id: "services",
+    subcategories: [
+      "electricity",
+      "water",
+      "gasService",
+      "internet",
+      "phone",
+      "subscriptions",
+      "other"
+    ]
+  },
+  {
+    id: "health",
+    subcategories: [
+      "medicine",
+      "medicalConsultation",
+      "dental",
+      "laboratory",
+      "personalCare",
+      "other"
+    ]
+  },
+  {
+    id: "personal",
+    subcategories: [
+      "clothing",
+      "footwear",
+      "beauty",
+      "gifts",
+      "other"
+    ]
+  },
+  {
+    id: "entertainment",
+    subcategories: [
+      "movies",
+      "games",
+      "events",
+      "hobbies",
+      "travel",
+      "other"
+    ]
+  },
+  {
+    id: "education",
+    subcategories: [
+      "courses",
+      "books",
+      "schoolSupplies",
+      "tuition",
+      "other"
+    ]
+  },
+  {
+    id: "financial",
+    subcategories: [
+      "debtPayment",
+      "bankFees",
+      "insurance",
+      "taxes",
+      "other"
+    ]
+  },
+  {
+    id: "other",
+    custom: true,
+    subcategories: []
+  }
+]);
 
-  "STANDAR TUNY EN AGUA 130 g",
-  "STANDAR TUNY EN ACEITE 130 g",
-  "STANDAR TUNY EN AGUA 270 g",
-  "STANDAR TUNY EN ACEITE 270 g",
+const EXPENSE_CATEGORY_INDEX = new Map(
+  EXPENSE_CATEGORIES.map(
+    (category) => [category.id, category]
+  )
+);
 
-  "ENSALADA TUNY SIN MAYONESA 135 g",
-  "ENSALADA TUNY SIN MAYONESA 295 g",
-  "ENSALADA TUNY CON MAYONESA 135 g",
-  "ENSALADA TUNY CON MAYONESA 295 g",
+function getExpenseCategories() {
+  return EXPENSE_CATEGORIES;
+}
 
-  "POUCH EN AGUA 75 g",
-  "POUCH EN ACEITE 75 g",
+function getExpenseCategoryById(categoryId) {
+  return EXPENSE_CATEGORY_INDEX.get(categoryId) || null;
+}
 
-  "INSTITUCIONAL LATA DE AGUA 1.88 KG",
-  "INSTITUCIONAL LATA DE ACEITE 1.88 KG",
+function getExpenseSubcategories(categoryId) {
+  const category = getExpenseCategoryById(categoryId);
 
-  "ANCLA EN AGUA 120 g",
-  "ANCLA EN ACEITE 120 g",
-  "ANCLA EN AGUA 270 g",
-  "ANCLA EN ACEITE 270 g",
+  return category
+    ? category.subcategories
+    : [];
+}
 
-  "MARTUNA EN AGUA 130 g",
-  "MARTUNA EN ACEITE 130 g"
-];
-
-
-// ============================================================
-// RELACIÓN AUTOMÁTICA ENTRE PRODUCTO Y RENGLÓN DEL PDF
-// ============================================================
-
-const FILAS_PRODUCTOS_PDF =
-  new Map(
-    CATALOGO_PRODUCTOS.map(
-      (
-        producto,
-        indice
-      ) => [
-        producto,
-        indice
-      ]
-    )
+function isCustomExpenseCategory(categoryId) {
+  return Boolean(
+    getExpenseCategoryById(categoryId)?.custom
   );
+}
 
+function isCustomExpenseSubcategory(subcategoryId) {
+  return subcategoryId === "other";
+}
 
-// ============================================================
-// CATÁLOGO OFICIAL DE CANJES / PROMOCIONALES
-// ============================================================
-//
-// IMPORTANTE:
-//
-// - Los nombres deben conservarse exactamente como aparecen
-//   en el formato PDF oficial.
-// - El orden también debe mantenerse.
-// - Cada posición corresponde a un renglón del PDF.
-//
-// ============================================================
+function isValidExpenseCategory(categoryId) {
+  return EXPENSE_CATEGORY_INDEX.has(categoryId);
+}
 
-const CATALOGO_CANJES = [
-  "PALA DE COCINA",
-  "KIT DE CUBIERTOS",
-  "ENSALADERA",
-  "COLADOR"
-];
+function isValidExpenseSubcategory(
+  categoryId,
+  subcategoryId
+) {
+  if (!subcategoryId) {
+    return true;
+  }
 
-
-// ============================================================
-// RELACIÓN AUTOMÁTICA ENTRE CANJE Y RENGLÓN DEL PDF
-// ============================================================
-
-const FILAS_CANJES_PDF =
-  new Map(
-    CATALOGO_CANJES.map(
-      (
-        canje,
-        indice
-      ) => [
-        canje,
-        indice
-      ]
-    )
-  );
+  return getExpenseSubcategories(categoryId)
+    .includes(subcategoryId);
+}
