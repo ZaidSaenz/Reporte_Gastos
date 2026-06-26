@@ -1,55 +1,65 @@
 // ============================================================
-// ARCHIVOS DISPONIBLES SIN INTERNET
+// OFFLINE APPLICATION CACHE
 // ============================================================
 //
-// Cuando hagamos cambios importantes en la aplicación,
-// incrementaremos el número de versión:
+// Stores the essential application files so the expense
+// tracker can continue working without an internet connection.
 //
-// v7 -> v8 -> v9
+// Increase CACHE_VERSION whenever important files change:
 //
-// Esto obliga al navegador a descargar los archivos nuevos.
+// v1 -> v2 -> v3
 //
 // ============================================================
 
-const NOMBRE_CACHE =
-  "reporte-ventas-tuny-ancla-v21";
+const CACHE_PREFIX =
+  "expense-tracker";
 
-const ARCHIVOS_APP = [
+const CACHE_VERSION =
+  "v1";
+
+const CACHE_NAME =
+  `${CACHE_PREFIX}-${CACHE_VERSION}`;
+
+
+// ============================================================
+// APPLICATION FILES
+// ============================================================
+//
+// Important:
+//
+// Every file listed here must exist. If one of them is missing,
+// the service worker installation will fail.
+//
+// ============================================================
+
+const APP_FILES = [
   "./",
   "./index.html",
   "./manifest.json",
 
   "./css/styles.css",
 
-  "./assets/plantillas/Formulario_reporte_venta_diario_Tuny_estilo_original.pdf",
-  "./assets/vendor/pdf-lib.min.js",
-
-  "./js/catalogo.js",
-  "./js/almacenamiento.js",
-  "./js/reporte.js",
-  "./js/whatsapp.js",
-  "./js/pdf.js",
+  "./js/categories.js",
+  "./js/storage.js",
+  "./js/history.js",
+  "./js/copy-history.js",
   "./js/app.js"
 ];
 
 
 // ============================================================
-// INSTALAR Y GUARDAR ARCHIVOS
+// INSTALL AND CACHE APPLICATION FILES
 // ============================================================
 
 self.addEventListener(
   "install",
-  (evento) => {
-    evento.waitUntil(
+  (event) => {
+    event.waitUntil(
       caches
-        .open(
-          NOMBRE_CACHE
-        )
+        .open(CACHE_NAME)
         .then(
           (cache) =>
-            cache.addAll(
-              ARCHIVOS_APP
-            )
+            cache.addAll(APP_FILES)
         )
         .then(
           () =>
@@ -61,28 +71,30 @@ self.addEventListener(
 
 
 // ============================================================
-// ELIMINAR VERSIONES ANTERIORES
+// REMOVE OLD APPLICATION CACHE VERSIONS
 // ============================================================
 
 self.addEventListener(
   "activate",
-  (evento) => {
-    evento.waitUntil(
+  (event) => {
+    event.waitUntil(
       caches
         .keys()
         .then(
-          (nombres) =>
+          (cacheNames) =>
             Promise.all(
-              nombres
+              cacheNames
                 .filter(
-                  (nombre) =>
-                    nombre !==
-                    NOMBRE_CACHE
+                  (cacheName) =>
+                    cacheName.startsWith(
+                      `${CACHE_PREFIX}-`
+                    ) &&
+                    cacheName !== CACHE_NAME
                 )
                 .map(
-                  (nombre) =>
+                  (cacheName) =>
                     caches.delete(
-                      nombre
+                      cacheName
                     )
                 )
             )
@@ -97,30 +109,61 @@ self.addEventListener(
 
 
 // ============================================================
-// USAR COPIA LOCAL CUANDO NO HAYA INTERNET
+// SERVE CACHED FILES WHEN OFFLINE
 // ============================================================
 
 self.addEventListener(
   "fetch",
-  (evento) => {
+  (event) => {
+    const request =
+      event.request;
+
+    if (request.method !== "GET") {
+      return;
+    }
+
+    const requestUrl =
+      new URL(request.url);
+
     if (
-      evento.request.method !==
-      "GET"
+      requestUrl.origin !==
+      self.location.origin
     ) {
       return;
     }
 
-    evento.respondWith(
+    event.respondWith(
       caches
         .match(
-          evento.request
+          request,
+          {
+            ignoreSearch: true
+          }
         )
         .then(
-          (respuestaGuardada) =>
-            respuestaGuardada ||
-            fetch(
-              evento.request
-            )
+          (cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+
+            return fetch(request)
+              .catch(
+                () => {
+                  if (
+                    request.mode ===
+                    "navigate"
+                  ) {
+                    return caches.match(
+                      "./index.html"
+                    );
+                  }
+
+                  throw new Error(
+                    "Resource unavailable while offline."
+                  );
+                }
+              );
+          }
         )
     );
   }
