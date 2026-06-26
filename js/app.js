@@ -5,62 +5,224 @@
 const applicationState = {
   selectedCategoryId: "",
   selectedSubcategoryId: "",
-  editingExpenseId: ""
+  editingExpenseId: "",
+  detailsExpenseId: "",
+  messageTimerId: null
 };
 
 document.addEventListener(
   "DOMContentLoaded",
   () => {
+    initializeApplicationInterface();
     initializeSettings();
-    initializeExpenseForm();
     refreshApplication();
     registerServiceWorker();
   }
 );
 
-function initializeExpenseForm() {
-  const dateInput =
-    document.querySelector(
-      "#expense-date"
+function initializeApplicationInterface() {
+  document
+    .querySelector("#open-expense-button")
+    ?.addEventListener(
+      "click",
+      openNewExpenseDialog
     );
 
-  if (dateInput) {
-    dateInput.value =
-      getLocalDateKey();
-  }
+  document
+    .querySelector("#close-expense-button")
+    ?.addEventListener(
+      "click",
+      closeExpenseDialog
+    );
 
   document
-    .querySelector(
-      "#save-expense-button"
-    )
+    .querySelector("#save-expense-button")
     ?.addEventListener(
       "click",
       saveExpenseFromForm
     );
 
   document
-    .querySelector(
-      "#cancel-edit-button"
-    )
+    .querySelector("#cancel-edit-button")
     ?.addEventListener(
       "click",
-      resetExpenseForm
+      openNewExpenseDialog
     );
 
   document
-    .querySelector(
-      "#expense-amount"
-    )
+    .querySelector("#expense-amount")
     ?.addEventListener(
       "blur",
       formatAmountInput
     );
 
+  document
+    .querySelector("#open-history-button")
+    ?.addEventListener(
+      "click",
+      openHistoryDialog
+    );
+
+  document
+    .querySelector("#close-history-button")
+    ?.addEventListener(
+      "click",
+      closeHistoryDialog
+    );
+
+  document
+    .querySelector(
+      "#close-expense-details-button"
+    )
+    ?.addEventListener(
+      "click",
+      closeExpenseDetailsDialog
+    );
+
+  document
+    .querySelector(
+      "#edit-expense-detail-button"
+    )
+    ?.addEventListener(
+      "click",
+      () => editExpense(
+        applicationState.detailsExpenseId
+      )
+    );
+
+  document
+    .querySelector(
+      "#delete-expense-detail-button"
+    )
+    ?.addEventListener(
+      "click",
+      () => deleteExpense(
+        applicationState.detailsExpenseId
+      )
+    );
+
+  [
+    "#expense-dialog",
+    "#expense-details-dialog",
+    "#settings-dialog"
+  ].forEach((selector) => {
+    document
+      .querySelector(selector)
+      ?.addEventListener(
+        "click",
+        (event) => {
+          if (event.target === event.currentTarget) {
+            event.currentTarget.close?.();
+          }
+        }
+      );
+  });
+
   document.addEventListener(
     "settingschanged",
-    () => {
-      refreshApplication();
+    refreshApplication
+  );
+
+  setDefaultExpenseDate();
+  renderCategorySelector();
+}
+
+function openDialog(dialog) {
+  if (!dialog) {
+    return;
+  }
+
+  if (
+    typeof dialog.showModal === "function"
+  ) {
+    if (!dialog.open) {
+      dialog.showModal();
     }
+  } else {
+    dialog.setAttribute("open", "");
+  }
+}
+
+function closeDialog(dialog) {
+  if (!dialog) {
+    return;
+  }
+
+  if (typeof dialog.close === "function") {
+    if (dialog.open) {
+      dialog.close();
+    }
+  } else {
+    dialog.removeAttribute("open");
+  }
+}
+
+function openNewExpenseDialog() {
+  resetExpenseForm();
+  openDialog(
+    document.querySelector(
+      "#expense-dialog"
+    )
+  );
+
+  requestAnimationFrame(() => {
+    document
+      .querySelector("#expense-amount")
+      ?.focus();
+  });
+}
+
+function closeExpenseDialog() {
+  closeDialog(
+    document.querySelector(
+      "#expense-dialog"
+    )
+  );
+}
+
+function openHistoryDialog() {
+  refreshApplication();
+  openDialog(
+    document.querySelector(
+      "#history-dialog"
+    )
+  );
+}
+
+function closeHistoryDialog() {
+  closeDialog(
+    document.querySelector(
+      "#history-dialog"
+    )
+  );
+}
+
+function openExpenseDetails(expenseId) {
+  const expense = getExpenseById(expenseId);
+
+  if (!expense) {
+    return;
+  }
+
+  applicationState.detailsExpenseId =
+    expenseId;
+
+  renderExpenseDetails(expense);
+
+  openDialog(
+    document.querySelector(
+      "#expense-details-dialog"
+    )
+  );
+}
+
+function closeExpenseDetailsDialog() {
+  applicationState.detailsExpenseId = "";
+
+  closeDialog(
+    document.querySelector(
+      "#expense-details-dialog"
+    )
   );
 }
 
@@ -70,11 +232,7 @@ function normalizeAmount(value) {
     .replace(/\s+/g, "")
     .replace(/[$€£¥]/g, "");
 
-  if (
-    !/^\d+(?:[.,]\d{0,2})?$/.test(
-      text
-    )
-  ) {
+  if (!/^\d+(?:[.,]\d{0,2})?$/.test(text)) {
     return null;
   }
 
@@ -82,10 +240,7 @@ function normalizeAmount(value) {
     text.replace(",", ".")
   );
 
-  if (
-    !Number.isFinite(amount) ||
-    amount <= 0
-  ) {
+  if (!Number.isFinite(amount) || amount <= 0) {
     return null;
   }
 
@@ -102,12 +257,21 @@ function formatAmountInput() {
     return;
   }
 
-  const amount =
-    normalizeAmount(input.value);
+  const amount = normalizeAmount(input.value);
 
   if (amount !== null) {
-    input.value =
-      amount.toFixed(2);
+    input.value = amount.toFixed(2);
+  }
+}
+
+function setDefaultExpenseDate() {
+  const dateInput =
+    document.querySelector(
+      "#expense-date"
+    );
+
+  if (dateInput) {
+    dateInput.value = getLocalDateKey();
   }
 }
 
@@ -123,37 +287,32 @@ function renderCategorySelector() {
 
   container.replaceChildren();
 
-  getExpenseCategories()
-    .forEach((category) => {
+  getExpenseCategories().forEach(
+    (category) => {
       const button =
-        document.createElement(
-          "button"
-        );
+        document.createElement("button");
 
       button.type = "button";
-      button.className =
-        "category-option";
-
-      button.classList.toggle(
-        "is-selected",
-        applicationState
-          .selectedCategoryId ===
-          category.id
-      );
-
+      button.className = "category-option";
       button.textContent =
         getCategoryLabel(category.id);
 
+      button.classList.toggle(
+        "is-selected",
+        applicationState.selectedCategoryId ===
+          category.id
+      );
+
       button.addEventListener(
         "click",
-        () =>
-          selectExpenseCategory(
-            category.id
-          )
+        () => selectExpenseCategory(
+          category.id
+        )
       );
 
       container.append(button);
-    });
+    }
+  );
 
   renderSubcategorySelector();
   updateCustomFields();
@@ -176,8 +335,7 @@ function renderSubcategorySelector() {
 
   const subcategories =
     getExpenseSubcategories(
-      applicationState
-        .selectedCategoryId
+      applicationState.selectedCategoryId
     );
 
   section.classList.toggle(
@@ -190,13 +348,15 @@ function renderSubcategorySelector() {
   subcategories.forEach(
     (subcategoryId) => {
       const button =
-        document.createElement(
-          "button"
-        );
+        document.createElement("button");
 
       button.type = "button";
       button.className =
         "subcategory-option";
+      button.textContent =
+        getSubcategoryLabel(
+          subcategoryId
+        );
 
       button.classList.toggle(
         "is-selected",
@@ -205,17 +365,11 @@ function renderSubcategorySelector() {
           subcategoryId
       );
 
-      button.textContent =
-        getSubcategoryLabel(
-          subcategoryId
-        );
-
       button.addEventListener(
         "click",
-        () =>
-          selectExpenseSubcategory(
-            subcategoryId
-          )
+        () => selectExpenseSubcategory(
+          subcategoryId
+        )
       );
 
       container.append(button);
@@ -223,15 +377,11 @@ function renderSubcategorySelector() {
   );
 }
 
-function selectExpenseCategory(
-  categoryId
-) {
-  applicationState
-    .selectedCategoryId =
-      categoryId;
-
-  applicationState
-    .selectedSubcategoryId = "";
+function selectExpenseCategory(categoryId) {
+  applicationState.selectedCategoryId =
+    categoryId;
+  applicationState.selectedSubcategoryId =
+    "";
 
   renderCategorySelector();
 }
@@ -239,59 +389,49 @@ function selectExpenseCategory(
 function selectExpenseSubcategory(
   subcategoryId
 ) {
-  applicationState
-    .selectedSubcategoryId =
-      subcategoryId;
+  applicationState.selectedSubcategoryId =
+    subcategoryId;
 
   renderSubcategorySelector();
   updateCustomFields();
 }
 
 function updateCustomFields() {
-  const customCategoryField =
-    document.querySelector(
+  document
+    .querySelector(
       "#custom-category-field"
-    );
-
-  const customSubcategoryField =
-    document.querySelector(
-      "#custom-subcategory-field"
-    );
-
-  customCategoryField
+    )
     ?.classList.toggle(
       "is-hidden",
       !isCustomExpenseCategory(
-        applicationState
-          .selectedCategoryId
+        applicationState.selectedCategoryId
       )
     );
 
-  customSubcategoryField
+  document
+    .querySelector(
+      "#custom-subcategory-field"
+    )
     ?.classList.toggle(
       "is-hidden",
       !isCustomExpenseSubcategory(
-        applicationState
-          .selectedSubcategoryId
+        applicationState.selectedSubcategoryId
       )
     );
 }
 
 function readExpenseForm() {
-  const amount =
-    normalizeAmount(
-      document.querySelector(
-        "#expense-amount"
-      )?.value
-    );
+  const amount = normalizeAmount(
+    document.querySelector(
+      "#expense-amount"
+    )?.value
+  );
 
   const categoryId =
-    applicationState
-      .selectedCategoryId;
+    applicationState.selectedCategoryId;
 
   const subcategoryId =
-    applicationState
-      .selectedSubcategoryId;
+    applicationState.selectedSubcategoryId;
 
   const customCategory =
     document.querySelector(
@@ -320,9 +460,7 @@ function readExpenseForm() {
     );
 
     document
-      .querySelector(
-        "#expense-amount"
-      )
+      .querySelector("#expense-amount")
       ?.focus();
 
     return null;
@@ -333,29 +471,17 @@ function readExpenseForm() {
       t("expense.categoryRequired"),
       true
     );
-
     return null;
   }
 
   if (
-    isCustomExpenseCategory(
-      categoryId
-    ) &&
+    isCustomExpenseCategory(categoryId) &&
     !customCategory
   ) {
     showAppMessage(
-      t(
-        "expense.customCategoryRequired"
-      ),
+      t("expense.customCategoryRequired"),
       true
     );
-
-    document
-      .querySelector(
-        "#custom-category"
-      )
-      ?.focus();
-
     return null;
   }
 
@@ -371,13 +497,6 @@ function readExpenseForm() {
       ),
       true
     );
-
-    document
-      .querySelector(
-        "#custom-subcategory"
-      )
-      ?.focus();
-
     return null;
   }
 
@@ -393,23 +512,19 @@ function readExpenseForm() {
 }
 
 function saveExpenseFromForm() {
-  const expense =
-    readExpenseForm();
+  const expense = readExpenseForm();
 
   if (!expense) {
     return;
   }
 
-  const isEditing =
-    Boolean(
-      applicationState
-        .editingExpenseId
-    );
+  const isEditing = Boolean(
+    applicationState.editingExpenseId
+  );
 
   const saved = isEditing
     ? updateExpenseById(
-        applicationState
-          .editingExpenseId,
+        applicationState.editingExpenseId,
         expense
       )
     : addExpense(expense);
@@ -419,14 +534,11 @@ function saveExpenseFromForm() {
       t("expense.saveError"),
       true
     );
-
     return;
   }
 
-  registerRecentCategory(
-    expense
-  );
-
+  registerRecentCategory(expense);
+  closeExpenseDialog();
   resetExpenseForm();
   refreshApplication();
 
@@ -440,31 +552,15 @@ function saveExpenseFromForm() {
 }
 
 function resetExpenseForm() {
-  applicationState
-    .selectedCategoryId = "";
+  applicationState.selectedCategoryId = "";
+  applicationState.selectedSubcategoryId = "";
+  applicationState.editingExpenseId = "";
 
-  applicationState
-    .selectedSubcategoryId = "";
+  document
+    .querySelector("#expense-form")
+    ?.reset();
 
-  applicationState
-    .editingExpenseId = "";
-
-  const form =
-    document.querySelector(
-      "#expense-form"
-    );
-
-  form?.reset();
-
-  const dateInput =
-    document.querySelector(
-      "#expense-date"
-    );
-
-  if (dateInput) {
-    dateInput.value =
-      getLocalDateKey();
-  }
+  setDefaultExpenseDate();
 
   document
     .querySelector(
@@ -477,61 +573,63 @@ function resetExpenseForm() {
 
   document
     .querySelector(
+      "#expense-dialog-title"
+    )
+    ?.setAttribute(
+      "data-i18n",
+      "expense.title"
+    );
+
+  document
+    .querySelector(
       "#cancel-edit-button"
     )
-    ?.classList.add(
-      "is-hidden"
-    );
+    ?.classList.add("is-hidden");
+
+  document
+    .querySelector(
+      ".expense-more-details"
+    )
+    ?.removeAttribute("open");
 
   renderCategorySelector();
   applyTranslations();
 }
 
 function editExpense(expenseId) {
-  const expense =
-    getExpenseById(expenseId);
+  const expense = getExpenseById(expenseId);
 
   if (!expense) {
     return;
   }
 
-  applicationState
-    .editingExpenseId =
-      expense.id;
-
-  applicationState
-    .selectedCategoryId =
-      expense.categoryId;
-
-  applicationState
-    .selectedSubcategoryId =
-      expense.subcategoryId;
+  applicationState.editingExpenseId =
+    expense.id;
+  applicationState.selectedCategoryId =
+    expense.categoryId;
+  applicationState.selectedSubcategoryId =
+    expense.subcategoryId;
 
   document.querySelector(
     "#expense-amount"
-  ).value =
-    Number(expense.amount)
-      .toFixed(2);
+  ).value = Number(expense.amount)
+    .toFixed(2);
 
   document.querySelector(
     "#custom-category"
-  ).value =
-    expense.customCategory;
+  ).value = expense.customCategory;
 
   document.querySelector(
     "#custom-subcategory"
-  ).value =
-    expense.customSubcategory;
+  ).value = expense.customSubcategory;
 
   document.querySelector(
     "#expense-description"
-  ).value =
-    expense.description;
+  ).value = expense.description;
 
   document.querySelector(
     "#expense-date"
-  ).value =
-    expense.date;
+  ).value = expense.date;
 
   document
     .querySelector(
@@ -546,29 +644,34 @@ function editExpense(expenseId) {
     .querySelector(
       "#cancel-edit-button"
     )
-    ?.classList.remove(
-      "is-hidden"
-    );
+    ?.classList.remove("is-hidden");
 
   renderCategorySelector();
   applyTranslations();
 
   document
     .querySelector(
-      "#new-expense-panel"
+      ".expense-more-details"
     )
-    ?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+    ?.setAttribute("open", "");
+
+  closeExpenseDetailsDialog();
+  closeHistoryDialog();
+  openDialog(
+    document.querySelector(
+      "#expense-dialog"
+    )
+  );
 }
 
 function deleteExpense(expenseId) {
-  if (
-    !window.confirm(
-      t("history.deleteConfirm")
-    )
-  ) {
+  if (!expenseId) {
+    return;
+  }
+
+  if (!window.confirm(
+    t("history.deleteConfirm")
+  )) {
     return;
   }
 
@@ -576,182 +679,73 @@ function deleteExpense(expenseId) {
     return;
   }
 
-  if (
-    applicationState
-      .editingExpenseId ===
-      expenseId
-  ) {
-    resetExpenseForm();
-  }
-
+  closeExpenseDetailsDialog();
   refreshApplication();
-
-  showAppMessage(
-    t("expense.deleted")
-  );
-}
-
-function renderRecentCategories() {
-  const section =
-    document.querySelector(
-      "#recent-categories-panel"
-    );
-
-  const container =
-    document.querySelector(
-      "#recent-categories"
-    );
-
-  if (!section || !container) {
-    return;
-  }
-
-  const recentCategories =
-    getRecentCategories();
-
-  section.classList.toggle(
-    "is-hidden",
-    recentCategories.length === 0
-  );
-
-  container.replaceChildren();
-
-  recentCategories.forEach(
-    (item) => {
-      const button =
-        document.createElement(
-          "button"
-        );
-
-      const category =
-        document.createElement(
-          "strong"
-        );
-
-      const subcategory =
-        document.createElement(
-          "span"
-        );
-
-      button.type = "button";
-      button.className =
-        "recent-category-card";
-
-      category.textContent =
-        getCategoryLabel(
-          item.categoryId,
-          item.customCategory
-        );
-
-      const subcategoryLabel =
-        getSubcategoryLabel(
-          item.subcategoryId,
-          item.customSubcategory
-        );
-
-      subcategory.textContent =
-        subcategoryLabel;
-
-      subcategory.classList.toggle(
-        "is-hidden",
-        !subcategoryLabel
-      );
-
-      button.append(
-        category,
-        subcategory
-      );
-
-      button.addEventListener(
-        "click",
-        () => {
-          applicationState
-            .selectedCategoryId =
-              item.categoryId;
-
-          applicationState
-            .selectedSubcategoryId =
-              item.subcategoryId;
-
-          document.querySelector(
-            "#custom-category"
-          ).value =
-            item.customCategory || "";
-
-          document.querySelector(
-            "#custom-subcategory"
-          ).value =
-            item.customSubcategory || "";
-
-          renderCategorySelector();
-
-          document
-            .querySelector(
-              "#expense-amount"
-            )
-            ?.focus();
-
-          document
-            .querySelector(
-              "#new-expense-panel"
-            )
-            ?.scrollIntoView({
-              behavior: "smooth",
-              block: "start"
-            });
-        }
-      );
-
-      container.append(button);
-    }
-  );
+  showAppMessage(t("expense.deleted"));
 }
 
 function refreshApplication() {
-  applyTranslations();
-  renderCategorySelector();
+  const expenses = getExpenses();
 
-  const expenses =
-    getExpenses();
-
-  renderDashboardSummary(expenses);
+  renderHomeSummary(expenses);
 
   renderExpenseHistory(
     expenses,
     {
-      onEdit: editExpense,
-      onDelete: deleteExpense,
+      onDetails: openExpenseDetails,
       onCopy: copyDailyHistory
     }
   );
 
-  renderRecentCategories();
+  if (applicationState.detailsExpenseId) {
+    renderExpenseDetails(
+      getExpenseById(
+        applicationState.detailsExpenseId
+      )
+    );
+  }
+
+  renderCategorySelector();
+  applyTranslations();
 }
 
 function showAppMessage(
-  text,
+  message,
   isError = false
 ) {
-  const message =
+  const element =
     document.querySelector(
       "#app-message"
     );
 
-  if (!message) {
+  if (!element) {
     return;
   }
 
-  message.textContent = text;
-  message.classList.toggle(
+  window.clearTimeout(
+    applicationState.messageTimerId
+  );
+
+  element.textContent = message;
+  element.classList.toggle(
     "is-error",
     isError
   );
+
+  applicationState.messageTimerId =
+    window.setTimeout(
+      () => {
+        element.textContent = "";
+        element.classList.remove(
+          "is-error"
+        );
+      },
+      3200
+    );
 }
 
 function registerServiceWorker() {
-  if (
-    !("serviceWorker" in navigator)
-  ) {
+  if (!("serviceWorker" in navigator)) {
     return;
   }
 
@@ -759,9 +753,7 @@ function registerServiceWorker() {
     "load",
     () => {
       navigator.serviceWorker
-        .register(
-          "./service-worker.js"
-        )
+        .register("./service-worker.js")
         .catch((error) => {
           console.error(
             "Unable to register the service worker:",

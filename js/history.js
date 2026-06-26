@@ -1,155 +1,83 @@
 // ============================================================
-// DASHBOARD AND EXPENSE HISTORY
+// HOME SUMMARY AND EXPENSE HISTORY
 // ============================================================
 
-function getStartOfWeek(date = new Date()) {
-  const result = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
-  );
-
-  const day =
-    result.getDay() || 7;
-
-  result.setDate(
-    result.getDate() - day + 1
-  );
-
-  return result;
-}
-
-function getStartOfMonth(date = new Date()) {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    1
-  );
-}
-
-function getExpensesFromDate(
+function getCurrentMonthExpenses(
   expenses,
-  startDate
+  referenceDate = new Date()
 ) {
-  const startKey =
-    getLocalDateKey(startDate);
+  const year = referenceDate.getFullYear();
+  const month = referenceDate.getMonth();
 
-  const todayKey =
-    getLocalDateKey();
+  return expenses.filter((expense) => {
+    const expenseDate =
+      createLocalDateFromKey(expense.date);
 
-  return expenses.filter(
-    (expense) =>
-      expense.date >= startKey &&
-      expense.date <= todayKey
-  );
+    return Boolean(
+      expenseDate &&
+      expenseDate.getFullYear() === year &&
+      expenseDate.getMonth() === month
+    );
+  });
 }
 
-function calculateDashboardSummary(
-  expenses
-) {
-  const todayKey =
-    getLocalDateKey();
-
-  return {
-    today: calculateExpenseTotal(
-      expenses.filter(
-        (expense) =>
-          expense.date === todayKey
-      )
-    ),
-
-    week: calculateExpenseTotal(
-      getExpensesFromDate(
-        expenses,
-        getStartOfWeek()
-      )
-    ),
-
-    month: calculateExpenseTotal(
-      getExpensesFromDate(
-        expenses,
-        getStartOfMonth()
-      )
-    )
-  };
-}
-
-function createSummaryItem(
-  value,
-  label
-) {
-  const container =
-    document.createElement("div");
-
-  const valueElement =
-    document.createElement("strong");
-
-  const labelElement =
-    document.createElement("span");
-
-  container.className =
-    "summary-item";
-
-  valueElement.textContent =
-    formatCurrency(value);
-
-  labelElement.textContent =
-    label;
-
-  container.append(
-    valueElement,
-    labelElement
-  );
-
-  return container;
-}
-
-function renderDashboardSummary(
-  expenses
-) {
-  const container =
-    document.querySelector(
-      "#expense-summary"
+function renderHomeSummary(expenses) {
+  const currentSpending =
+    calculateExpenseTotal(
+      getCurrentMonthExpenses(expenses)
     );
 
-  if (!container) {
+  const settings = getSettings();
+  const monthlyBudget =
+    Number(settings.monthlyBudget) || 0;
+
+  const spendingElement =
+    document.querySelector(
+      "#current-spending-value"
+    );
+
+  const budgetBlock =
+    document.querySelector(
+      "#remaining-budget-block"
+    );
+
+  const budgetValue =
+    document.querySelector(
+      "#remaining-budget-value"
+    );
+
+  if (spendingElement) {
+    spendingElement.textContent =
+      formatCurrency(currentSpending);
+  }
+
+  if (!budgetBlock || !budgetValue) {
     return;
   }
 
-  const summary =
-    calculateDashboardSummary(
-      expenses
-    );
+  const hasBudget = monthlyBudget > 0;
 
-  container.replaceChildren(
-    createSummaryItem(
-      summary.today,
-      t("dashboard.today")
-    ),
-    createSummaryItem(
-      summary.week,
-      t("dashboard.week")
-    ),
-    createSummaryItem(
-      summary.month,
-      t("dashboard.month")
-    )
+  budgetBlock.classList.toggle(
+    "is-hidden",
+    !hasBudget
   );
+
+  if (hasBudget) {
+    budgetValue.textContent =
+      formatCurrency(
+        monthlyBudget - currentSpending
+      );
+  }
 }
 
 function groupExpensesByDate(expenses) {
   return expenses.reduce(
     (groups, expense) => {
       if (!groups.has(expense.date)) {
-        groups.set(
-          expense.date,
-          []
-        );
+        groups.set(expense.date, []);
       }
 
-      groups
-        .get(expense.date)
-        .push(expense);
+      groups.get(expense.date).push(expense);
 
       return groups;
     },
@@ -157,165 +85,106 @@ function groupExpensesByDate(expenses) {
   );
 }
 
-function createExpenseHistoryCard(
+function createHistoryRow(
   expense,
-  {
-    onEdit,
-    onDelete
-  }
+  onDetails
 ) {
-  const card =
+  const row =
     document.createElement("article");
 
-  const header =
-    document.createElement("div");
-
-  const time =
-    document.createElement("span");
+  const category =
+    document.createElement("strong");
 
   const amount =
     document.createElement("strong");
 
-  const category =
-    document.createElement("p");
+  const date =
+    document.createElement("span");
 
-  const description =
-    document.createElement("p");
-
-  const actions =
-    document.createElement("div");
-
-  const editButton =
+  const detailsButton =
     document.createElement("button");
 
-  const deleteButton =
-    document.createElement("button");
-
-  card.className =
-    "expense-history-card";
-
-  header.className =
-    "expense-history-card__header";
-
-  time.className =
-    "expense-history-card__time";
-
-  amount.className =
-    "expense-history-card__amount";
-
+  row.className = "history-row";
   category.className =
-    "expense-history-card__category";
-
-  description.className =
-    "expense-history-card__description";
-
-  actions.className =
-    "expense-history-card__actions";
-
-  editButton.type = "button";
-  editButton.className =
-    "button button--small button--secondary";
-  editButton.textContent =
-    t("history.edit");
-
-  deleteButton.type = "button";
-  deleteButton.className =
-    "button button--small button--danger";
-  deleteButton.textContent =
-    t("history.delete");
-
-  time.textContent =
-    formatTime(expense.createdAt);
-
-  amount.textContent =
-    formatCurrency(expense.amount);
+    "history-row__category";
+  amount.className =
+    "history-row__amount";
+  date.className = "history-row__date";
+  detailsButton.className =
+    "history-row__details";
 
   category.textContent =
     getExpenseCategoryLabel(expense);
 
-  description.textContent =
-    expense.description ||
-    t("history.noDescription");
+  amount.textContent =
+    formatCurrency(expense.amount);
 
-  editButton.addEventListener(
+  date.textContent =
+    `${formatCompactDate(expense.date)} · ` +
+    formatTime(expense.createdAt);
+
+  detailsButton.type = "button";
+  detailsButton.textContent =
+    t("history.details");
+
+  detailsButton.addEventListener(
     "click",
-    () => onEdit(expense.id)
+    () => onDetails(expense.id)
   );
 
-  deleteButton.addEventListener(
-    "click",
-    () => onDelete(expense.id)
-  );
-
-  header.append(
-    time,
-    amount
-  );
-
-  actions.append(
-    editButton,
-    deleteButton
-  );
-
-  card.append(
-    header,
+  row.append(
     category,
-    description,
-    actions
+    amount,
+    date,
+    detailsButton
   );
 
-  return card;
+  return row;
 }
 
-function createHistoryDayGroup(
+function createHistoryDateGroup(
   dateKey,
   expenses,
-  callbacks,
-  openByDefault
+  callbacks
 ) {
-  const details =
-    document.createElement("details");
+  const section =
+    document.createElement("section");
 
-  const summary =
-    document.createElement("summary");
+  const header =
+    document.createElement("div");
 
-  const dateLabel =
-    document.createElement("span");
+  const heading =
+    document.createElement("h3");
+
+  const actions =
+    document.createElement("div");
 
   const total =
-    document.createElement("strong");
-
-  const list =
-    document.createElement("div");
-
-  const footer =
-    document.createElement("div");
+    document.createElement("span");
 
   const copyButton =
     document.createElement("button");
 
-  details.className =
-    "history-day";
+  const list =
+    document.createElement("div");
 
-  details.open =
-    Boolean(openByDefault);
+  section.className =
+    "history-date-group";
+  header.className =
+    "history-date-group__header";
+  actions.className =
+    "history-date-group__actions";
+  total.className =
+    "history-date-group__total";
+  list.className = "history-list";
 
-  summary.className =
-    "history-day__summary";
-
-  dateLabel.textContent =
-    formatCompactDate(dateKey);
+  heading.textContent =
+    formatFullDate(dateKey);
 
   total.textContent =
     formatCurrency(
       calculateExpenseTotal(expenses)
     );
-
-  list.className =
-    "history-day__list";
-
-  footer.className =
-    "history-day__footer";
 
   copyButton.type = "button";
   copyButton.className =
@@ -323,40 +192,28 @@ function createHistoryDayGroup(
   copyButton.textContent =
     t("history.copy");
 
-  expenses.forEach(
-    (expense) => {
-      list.append(
-        createExpenseHistoryCard(
-          expense,
-          callbacks
-        )
-      );
-    }
-  );
-
   copyButton.addEventListener(
     "click",
-    () =>
-      callbacks.onCopy(
-        dateKey,
-        expenses
+    () => callbacks.onCopy(
+      dateKey,
+      expenses
+    )
+  );
+
+  expenses.forEach((expense) => {
+    list.append(
+      createHistoryRow(
+        expense,
+        callbacks.onDetails
       )
-  );
+    );
+  });
 
-  summary.append(
-    dateLabel,
-    total
-  );
+  actions.append(total, copyButton);
+  header.append(heading, actions);
+  section.append(header, list);
 
-  footer.append(copyButton);
-
-  details.append(
-    summary,
-    list,
-    footer
-  );
-
-  return details;
+  return section;
 }
 
 function renderExpenseHistory(
@@ -378,40 +235,73 @@ function renderExpenseHistory(
     const message =
       document.createElement("p");
 
-    message.className =
-      "empty-state";
-
-    message.textContent =
-      t("history.empty");
+    message.className = "empty-state";
+    message.textContent = t("history.empty");
 
     container.append(message);
-
     return;
   }
 
-  const groupedExpenses =
+  const groups =
     groupExpensesByDate(expenses);
 
-  [
-    ...groupedExpenses.entries()
-  ]
-    .sort(
-      ([leftDate], [rightDate]) =>
-        rightDate.localeCompare(leftDate)
-    )
-    .forEach(
-    (
-      [dateKey, dayExpenses],
-      index
-    ) => {
+  groups.forEach(
+    (groupExpenses, dateKey) => {
       container.append(
-        createHistoryDayGroup(
+        createHistoryDateGroup(
           dateKey,
-          dayExpenses,
-          callbacks,
-          index === 0
+          groupExpenses,
+          callbacks
         )
       );
     }
   );
+}
+
+function renderExpenseDetails(expense) {
+  if (!expense) {
+    return;
+  }
+
+  const amount =
+    document.querySelector(
+      "#details-amount"
+    );
+
+  const category =
+    document.querySelector(
+      "#details-category"
+    );
+
+  const date =
+    document.querySelector(
+      "#details-date"
+    );
+
+  const description =
+    document.querySelector(
+      "#details-description"
+    );
+
+  if (amount) {
+    amount.textContent =
+      formatCurrency(expense.amount);
+  }
+
+  if (category) {
+    category.textContent =
+      getExpenseCategoryLabel(expense);
+  }
+
+  if (date) {
+    date.textContent =
+      `${formatFullDate(expense.date)} · ` +
+      formatTime(expense.createdAt);
+  }
+
+  if (description) {
+    description.textContent =
+      expense.description ||
+      t("history.noDescription");
+  }
 }
