@@ -20,7 +20,9 @@ const DEFAULT_SETTINGS = Object.freeze({
   language: "es",
   visualStyle: "modern",
   palette: "magenta",
-  currency: "MXN"
+  currency: "MXN",
+  monthlyBudget: 0,
+  addButtonIcon: "default"
 });
 
 function readJSON(key, defaultValue) {

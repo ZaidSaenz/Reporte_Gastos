@@ -1,80 +1,56 @@
 // ============================================================
-// INTERNATIONALIZATION
+// INTERFACE TRANSLATIONS
 // ============================================================
 
 const TRANSLATIONS = Object.freeze({
   es: {
     app: {
-      title: "Control de gastos",
-      subtitle: "Registro privado en tu dispositivo"
+      title: "Control de gastos"
     },
     dashboard: {
-      title: "Gasto acumulado",
-      subtitle: "Resumen de tus movimientos",
-      today: "Hoy",
-      week: "Esta semana",
-      month: "Este mes"
+      currentSpending: "Gasto actual",
+      remainingBudget: "Presupuesto restante",
+      today: "Hoy"
     },
     expense: {
+      open: "Agregar gasto",
       title: "Nuevo gasto",
       subtitle: "Registro rápido",
       amount: "Importe",
       date: "Fecha",
-      description: "Descripción opcional",
-      descriptionPlaceholder:
-        "Ej. Compra semanal",
+      description: "Descripción",
+      descriptionPlaceholder: "Ej. Compra semanal",
       category: "Categoría",
       subcategory: "Subcategoría",
-      selectCategory:
-        "Selecciona una categoría",
-      selectSubcategory:
-        "Selecciona una subcategoría",
-      customCategory:
-        "Nombre de la categoría",
-      customSubcategory:
-        "Especifica el tipo de gasto",
+      customCategory: "Nombre de la categoría",
+      customSubcategory: "Especifica el tipo de gasto",
+      moreDetails: "Más detalles",
       save: "Guardar gasto",
       update: "Actualizar gasto",
       cancelEdit: "Cancelar edición",
-      saved:
-        "Gasto guardado correctamente.",
-      updated:
-        "Gasto actualizado correctamente.",
+      saved: "Gasto guardado correctamente.",
+      updated: "Gasto actualizado correctamente.",
       deleted: "El gasto fue eliminado.",
-      invalidAmount:
-        "Escribe un importe mayor a cero.",
-      categoryRequired:
-        "Selecciona una categoría.",
-      customCategoryRequired:
-        "Escribe el nombre de la categoría.",
-      customSubcategoryRequired:
-        "Escribe el tipo de gasto.",
-      saveError:
-        "No fue posible guardar el gasto en este dispositivo."
-    },
-    recent: {
-      title: "Categorías recientes",
-      subtitle: "Acceso rápido",
-      help:
-        "Toca una categoría para usarla en el formulario."
+      invalidAmount: "Escribe un importe mayor a cero.",
+      categoryRequired: "Selecciona una categoría.",
+      customCategoryRequired: "Escribe el nombre de la categoría.",
+      customSubcategoryRequired: "Escribe el tipo de gasto.",
+      saveError: "No fue posible guardar el gasto en este dispositivo."
     },
     history: {
       title: "Historial de gastos",
-      subtitle: "Movimientos por día",
-      empty:
-        "Todavía no hay gastos guardados.",
+      close: "Cerrar historial",
+      empty: "Todavía no hay gastos guardados.",
+      details: "Detalles",
+      detailsTitle: "Detalles del gasto",
       copy: "Copiar",
-      copied:
-        "El resumen del día fue copiado.",
-      copyError:
-        "No fue posible copiar el resumen.",
+      copied: "El resumen del día fue copiado.",
+      copyError: "No fue posible copiar el resumen.",
       edit: "Editar",
       delete: "Eliminar",
-      deleteConfirm:
-        "¿Eliminar este gasto?",
+      deleteConfirm: "¿Eliminar este gasto?",
       total: "Total del día",
-      noDescription:
-        "Sin descripción"
+      noDescription: "Sin descripción"
     },
     settings: {
       title: "Configuración",
@@ -84,26 +60,25 @@ const TRANSLATIONS = Object.freeze({
       visualStyle: "Estilo visual",
       palette: "Paleta de colores",
       currency: "Moneda",
+      monthlyBudget: "Presupuesto mensual",
+      monthlyBudgetHelp: "Déjalo vacío para ocultarlo.",
+      addButtonIcon: "Icono del botón",
+      iconDefault: "Icono predeterminado",
       modern: "Moderno",
       pixel: "Pixel art",
       office: "Oficina",
       export: "Exportar respaldo",
       import: "Importar respaldo",
       clear: "Borrar todos los datos",
-      clearConfirm:
-        "¿Borrar todos los gastos y preferencias guardados?",
-      backupCreated:
-        "Respaldo descargado correctamente.",
-      backupRestored:
-        "Respaldo restaurado correctamente.",
-      backupError:
-        "No fue posible procesar el respaldo.",
-      dataCleared:
-        "Los datos locales fueron eliminados."
+      clearConfirm: "¿Borrar todos los gastos y preferencias guardados?",
+      backupCreated: "Respaldo descargado correctamente.",
+      backupRestored: "Respaldo restaurado correctamente.",
+      backupError: "No fue posible procesar el respaldo.",
+      dataCleared: "Los datos locales fueron eliminados."
     },
     general: {
-      other: "Otros",
-      close: "Cerrar"
+      close: "Cerrar",
+      other: "Otros"
     },
     categories: {
       food: "Comida",
@@ -126,14 +101,12 @@ const TRANSLATIONS = Object.freeze({
       publicTransport: "Transporte público",
       taxi: "Taxi o transporte por aplicación",
       parking: "Estacionamiento",
-      vehicleMaintenance:
-        "Mantenimiento del vehículo",
+      vehicleMaintenance: "Mantenimiento del vehículo",
       rent: "Renta",
       cleaning: "Limpieza",
       repairs: "Reparaciones",
       furniture: "Muebles",
-      householdItems:
-        "Artículos para el hogar",
+      householdItems: "Artículos para el hogar",
       electricity: "Electricidad",
       water: "Agua",
       gasService: "Gas",
@@ -141,8 +114,7 @@ const TRANSLATIONS = Object.freeze({
       phone: "Teléfono",
       subscriptions: "Suscripciones",
       medicine: "Medicamentos",
-      medicalConsultation:
-        "Consulta médica",
+      medicalConsultation: "Consulta médica",
       dental: "Dentista",
       laboratory: "Laboratorio",
       personalCare: "Cuidado personal",
@@ -157,8 +129,7 @@ const TRANSLATIONS = Object.freeze({
       travel: "Viajes",
       courses: "Cursos",
       books: "Libros",
-      schoolSupplies:
-        "Material escolar",
+      schoolSupplies: "Material escolar",
       tuition: "Colegiatura",
       debtPayment: "Pago de deuda",
       bankFees: "Comisiones bancarias",
@@ -180,76 +151,52 @@ const TRANSLATIONS = Object.freeze({
 
   en: {
     app: {
-      title: "Expense Tracker",
-      subtitle: "Private records on your device"
+      title: "Expense Tracker"
     },
     dashboard: {
-      title: "Accumulated spending",
-      subtitle: "Expense summary",
-      today: "Today",
-      week: "This week",
-      month: "This month"
+      currentSpending: "Current spending",
+      remainingBudget: "Remaining budget",
+      today: "Today"
     },
     expense: {
+      open: "Add expense",
       title: "New expense",
       subtitle: "Quick entry",
       amount: "Amount",
       date: "Date",
-      description: "Optional description",
-      descriptionPlaceholder:
-        "Example: Weekly groceries",
+      description: "Description",
+      descriptionPlaceholder: "Example: Weekly groceries",
       category: "Category",
       subcategory: "Subcategory",
-      selectCategory:
-        "Select a category",
-      selectSubcategory:
-        "Select a subcategory",
-      customCategory:
-        "Category name",
-      customSubcategory:
-        "Specify the expense type",
+      customCategory: "Category name",
+      customSubcategory: "Specify the expense type",
+      moreDetails: "More details",
       save: "Save expense",
       update: "Update expense",
       cancelEdit: "Cancel editing",
-      saved:
-        "Expense saved successfully.",
-      updated:
-        "Expense updated successfully.",
+      saved: "Expense saved successfully.",
+      updated: "Expense updated successfully.",
       deleted: "The expense was deleted.",
-      invalidAmount:
-        "Enter an amount greater than zero.",
-      categoryRequired:
-        "Select a category.",
-      customCategoryRequired:
-        "Enter the category name.",
-      customSubcategoryRequired:
-        "Enter the expense type.",
-      saveError:
-        "The expense could not be saved on this device."
-    },
-    recent: {
-      title: "Recent categories",
-      subtitle: "Quick access",
-      help:
-        "Select a category to use it in the form."
+      invalidAmount: "Enter an amount greater than zero.",
+      categoryRequired: "Select a category.",
+      customCategoryRequired: "Enter the category name.",
+      customSubcategoryRequired: "Enter the expense type.",
+      saveError: "The expense could not be saved on this device."
     },
     history: {
       title: "Expense history",
-      subtitle: "Daily records",
-      empty:
-        "No expenses have been saved yet.",
+      close: "Close history",
+      empty: "No expenses have been saved yet.",
+      details: "Details",
+      detailsTitle: "Expense details",
       copy: "Copy",
-      copied:
-        "The daily summary was copied.",
-      copyError:
-        "The summary could not be copied.",
+      copied: "The daily summary was copied.",
+      copyError: "The summary could not be copied.",
       edit: "Edit",
       delete: "Delete",
-      deleteConfirm:
-        "Delete this expense?",
+      deleteConfirm: "Delete this expense?",
       total: "Daily total",
-      noDescription:
-        "No description"
+      noDescription: "No description"
     },
     settings: {
       title: "Settings",
@@ -259,26 +206,25 @@ const TRANSLATIONS = Object.freeze({
       visualStyle: "Visual style",
       palette: "Color palette",
       currency: "Currency",
+      monthlyBudget: "Monthly budget",
+      monthlyBudgetHelp: "Leave it empty to hide it.",
+      addButtonIcon: "Button icon",
+      iconDefault: "Default icon",
       modern: "Modern",
       pixel: "Pixel art",
       office: "Office",
       export: "Export backup",
       import: "Import backup",
       clear: "Delete all data",
-      clearConfirm:
-        "Delete all saved expenses and preferences?",
-      backupCreated:
-        "Backup downloaded successfully.",
-      backupRestored:
-        "Backup restored successfully.",
-      backupError:
-        "The backup could not be processed.",
-      dataCleared:
-        "Local data was deleted."
+      clearConfirm: "Delete all saved expenses and preferences?",
+      backupCreated: "Backup downloaded successfully.",
+      backupRestored: "Backup restored successfully.",
+      backupError: "The backup could not be processed.",
+      dataCleared: "Local data was deleted."
     },
     general: {
-      other: "Other",
-      close: "Close"
+      close: "Close",
+      other: "Other"
     },
     categories: {
       food: "Food",
@@ -298,18 +244,15 @@ const TRANSLATIONS = Object.freeze({
       delivery: "Delivery",
       snacks: "Snacks and drinks",
       fuel: "Fuel",
-      publicTransport:
-        "Public transportation",
+      publicTransport: "Public transportation",
       taxi: "Taxi or rideshare",
       parking: "Parking",
-      vehicleMaintenance:
-        "Vehicle maintenance",
+      vehicleMaintenance: "Vehicle maintenance",
       rent: "Rent",
       cleaning: "Cleaning",
       repairs: "Repairs",
       furniture: "Furniture",
-      householdItems:
-        "Household items",
+      householdItems: "Household items",
       electricity: "Electricity",
       water: "Water",
       gasService: "Gas service",
@@ -317,8 +260,7 @@ const TRANSLATIONS = Object.freeze({
       phone: "Phone",
       subscriptions: "Subscriptions",
       medicine: "Medicine",
-      medicalConsultation:
-        "Medical consultation",
+      medicalConsultation: "Medical consultation",
       dental: "Dental",
       laboratory: "Laboratory",
       personalCare: "Personal care",
@@ -333,8 +275,7 @@ const TRANSLATIONS = Object.freeze({
       travel: "Travel",
       courses: "Courses",
       books: "Books",
-      schoolSupplies:
-        "School supplies",
+      schoolSupplies: "School supplies",
       tuition: "Tuition",
       debtPayment: "Debt payment",
       bankFees: "Bank fees",
@@ -355,23 +296,17 @@ const TRANSLATIONS = Object.freeze({
   }
 });
 
-function getNestedTranslation(
-  source,
-  key
-) {
+function getNestedTranslation(source, key) {
   return key
     .split(".")
     .reduce(
-      (current, part) =>
-        current?.[part],
+      (current, part) => current?.[part],
       source
     );
 }
 
 function getActiveLanguage() {
-  if (
-    typeof getSettings === "function"
-  ) {
+  if (typeof getSettings === "function") {
     return getSettings().language || "es";
   }
 
@@ -436,19 +371,8 @@ function applyTranslations() {
       element.setAttribute(
         "aria-label",
         t(
-          element.dataset
-            .i18nAriaLabel
+          element.dataset.i18nAriaLabel
         )
-      );
-    });
-
-  document
-    .querySelectorAll(
-      "[data-i18n-title]"
-    )
-    .forEach((element) => {
-      element.title = t(
-        element.dataset.i18nTitle
       );
     });
 }
@@ -463,9 +387,7 @@ function getCategoryLabel(
     );
   }
 
-  return t(
-    `categories.${categoryId}`
-  );
+  return t(`categories.${categoryId}`);
 }
 
 function getSubcategoryLabel(
@@ -493,11 +415,10 @@ function getExpenseCategoryLabel(expense) {
     expense.customCategory
   );
 
-  const subcategory =
-    getSubcategoryLabel(
-      expense.subcategoryId,
-      expense.customSubcategory
-    );
+  const subcategory = getSubcategoryLabel(
+    expense.subcategoryId,
+    expense.customSubcategory
+  );
 
   return subcategory
     ? `${category} · ${subcategory}`
@@ -520,8 +441,7 @@ function formatCurrency(value) {
     getLocale(),
     {
       style: "currency",
-      currency:
-        settings.currency || "MXN"
+      currency: settings.currency || "MXN"
     }
   ).format(Number(value) || 0);
 }
@@ -544,15 +464,11 @@ function formatTime(dateValue) {
 
 function formatFullDate(dateKey) {
   const date =
-    typeof createLocalDateFromKey ===
-    "function"
+    typeof createLocalDateFromKey === "function"
       ? createLocalDateFromKey(dateKey)
       : new Date(dateKey);
 
-  if (
-    !date ||
-    Number.isNaN(date.getTime())
-  ) {
+  if (!date || Number.isNaN(date.getTime())) {
     return dateKey;
   }
 
@@ -569,24 +485,18 @@ function formatFullDate(dateKey) {
 
 function formatCompactDate(dateKey) {
   const date =
-    typeof createLocalDateFromKey ===
-    "function"
+    typeof createLocalDateFromKey === "function"
       ? createLocalDateFromKey(dateKey)
       : new Date(dateKey);
 
-  if (
-    !date ||
-    Number.isNaN(date.getTime())
-  ) {
+  if (!date || Number.isNaN(date.getTime())) {
     return dateKey;
   }
 
-  const todayKey =
-    typeof getLocalDateKey === "function"
-      ? getLocalDateKey()
-      : "";
-
-  if (dateKey === todayKey) {
+  if (
+    typeof getLocalDateKey === "function" &&
+    dateKey === getLocalDateKey()
+  ) {
     return t("dashboard.today");
   }
 

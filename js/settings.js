@@ -13,26 +13,117 @@ const PALETTE_THEME_COLORS = Object.freeze({
   warmGray: "#80766c"
 });
 
+// Add new icon files here when the icon library is ready.
+// Example:
+// {
+//   id: "pixel-coin",
+//   label: "Pixel coin",
+//   src: "./assets/icons/pixel-coin.svg"
+// }
+const ADD_BUTTON_ICONS = Object.freeze([
+  {
+    id: "default",
+    labelKey: "settings.iconDefault",
+    src: ""
+  }
+]);
+
+function getAddButtonIcon(iconId) {
+  return (
+    ADD_BUTTON_ICONS.find(
+      (icon) => icon.id === iconId
+    ) || ADD_BUTTON_ICONS[0]
+  );
+}
+
+function populateAddButtonIconSelect() {
+  const select =
+    document.querySelector(
+      "#select-add-button-icon"
+    );
+
+  if (!select) {
+    return;
+  }
+
+  const currentValue =
+    getSettings().addButtonIcon ||
+    "default";
+
+  select.replaceChildren();
+
+  ADD_BUTTON_ICONS.forEach((icon) => {
+    const option =
+      document.createElement("option");
+
+    option.value = icon.id;
+    option.textContent = icon.labelKey
+      ? t(icon.labelKey)
+      : icon.label;
+
+    select.append(option);
+  });
+
+  select.value = getAddButtonIcon(
+    currentValue
+  ).id;
+}
+
+function applyAddButtonIcon(settings) {
+  const image =
+    document.querySelector(
+      "#add-expense-icon"
+    );
+
+  const fallback =
+    document.querySelector(
+      "#add-expense-icon-fallback"
+    );
+
+  if (!image || !fallback) {
+    return;
+  }
+
+  const icon = getAddButtonIcon(
+    settings.addButtonIcon
+  );
+
+  if (!icon.src) {
+    image.removeAttribute("src");
+    image.classList.add("is-hidden");
+    fallback.classList.remove("is-hidden");
+    return;
+  }
+
+  image.onload = () => {
+    image.classList.remove("is-hidden");
+    fallback.classList.add("is-hidden");
+  };
+
+  image.onerror = () => {
+    image.removeAttribute("src");
+    image.classList.add("is-hidden");
+    fallback.classList.remove("is-hidden");
+  };
+
+  image.src = icon.src;
+}
+
 function applyApplicationSettings(
   settings = getSettings()
 ) {
-  const root =
-    document.documentElement;
+  const root = document.documentElement;
 
-  root.lang =
-    settings.language || "es";
-
+  root.lang = settings.language || "es";
   root.dataset.visualStyle =
     settings.visualStyle || "modern";
-
   root.dataset.palette =
     settings.palette || "magenta";
 
   const themeColor =
     PALETTE_THEME_COLORS[
       settings.palette
-    ] ||
-    PALETTE_THEME_COLORS.magenta;
+    ] || PALETTE_THEME_COLORS.magenta;
 
   document
     .querySelector(
@@ -43,47 +134,43 @@ function applyApplicationSettings(
       themeColor
     );
 
-  const languageSelect =
+  const fieldValues = {
+    "#select-language": settings.language,
+    "#select-visual-style":
+      settings.visualStyle,
+    "#select-palette": settings.palette,
+    "#select-currency": settings.currency
+  };
+
+  Object.entries(fieldValues).forEach(
+    ([selector, value]) => {
+      const field =
+        document.querySelector(selector);
+
+      if (field) {
+        field.value = value;
+      }
+    }
+  );
+
+  const budgetInput =
     document.querySelector(
-      "#select-language"
+      "#monthly-budget-input"
     );
 
-  const styleSelect =
-    document.querySelector(
-      "#select-visual-style"
-    );
+  if (budgetInput) {
+    const budget =
+      Number(settings.monthlyBudget) || 0;
 
-  const paletteSelect =
-    document.querySelector(
-      "#select-palette"
-    );
-
-  const currencySelect =
-    document.querySelector(
-      "#select-currency"
-    );
-
-  if (languageSelect) {
-    languageSelect.value =
-      settings.language;
-  }
-
-  if (styleSelect) {
-    styleSelect.value =
-      settings.visualStyle;
-  }
-
-  if (paletteSelect) {
-    paletteSelect.value =
-      settings.palette;
-  }
-
-  if (currencySelect) {
-    currencySelect.value =
-      settings.currency;
+    budgetInput.value =
+      budget > 0
+        ? budget.toFixed(2)
+        : "";
   }
 
   applyTranslations();
+  populateAddButtonIconSelect();
+  applyAddButtonIcon(settings);
 
   document.dispatchEvent(
     new CustomEvent(
@@ -106,15 +193,13 @@ function openSettingsDialog() {
   }
 
   if (
-    typeof dialog.showModal ===
-    "function"
+    typeof dialog.showModal === "function"
   ) {
-    dialog.showModal();
+    if (!dialog.open) {
+      dialog.showModal();
+    }
   } else {
-    dialog.setAttribute(
-      "open",
-      ""
-    );
+    dialog.setAttribute("open", "");
   }
 }
 
@@ -128,11 +213,10 @@ function closeSettingsDialog() {
     return;
   }
 
-  if (
-    typeof dialog.close ===
-    "function"
-  ) {
-    dialog.close();
+  if (typeof dialog.close === "function") {
+    if (dialog.open) {
+      dialog.close();
+    }
   } else {
     dialog.removeAttribute("open");
   }
@@ -151,35 +235,69 @@ function updateSetting(
     return false;
   }
 
-  applyApplicationSettings(
-    nextSettings
-  );
-
+  applyApplicationSettings(nextSettings);
   return true;
 }
 
+function normalizeOptionalBudget(value) {
+  const text = String(value)
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/[$€£¥]/g, "")
+    .replace(",", ".");
+
+  if (!text) {
+    return 0;
+  }
+
+  const budget = Number(text);
+
+  if (!Number.isFinite(budget) || budget < 0) {
+    return null;
+  }
+
+  return Number(budget.toFixed(2));
+}
+
+function saveMonthlyBudget() {
+  const input =
+    document.querySelector(
+      "#monthly-budget-input"
+    );
+
+  if (!input) {
+    return;
+  }
+
+  const budget =
+    normalizeOptionalBudget(input.value);
+
+  if (budget === null) {
+    input.value = "";
+    updateSetting("monthlyBudget", 0);
+    return;
+  }
+
+  input.value =
+    budget > 0
+      ? budget.toFixed(2)
+      : "";
+
+  updateSetting("monthlyBudget", budget);
+}
+
 function downloadBackup() {
-  const backup =
-    createLocalBackup();
+  const backup = createLocalBackup();
 
   const blob = new Blob(
-    [
-      JSON.stringify(
-        backup,
-        null,
-        2
-      )
-    ],
+    [JSON.stringify(backup, null, 2)],
     {
       type: "application/json"
     }
   );
 
-  const url =
-    URL.createObjectURL(blob);
-
-  const link =
-    document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
 
   link.href = url;
   link.download =
@@ -188,13 +306,9 @@ function downloadBackup() {
   document.body.append(link);
   link.click();
   link.remove();
-
   URL.revokeObjectURL(url);
 
-  if (
-    typeof showAppMessage ===
-    "function"
-  ) {
+  if (typeof showAppMessage === "function") {
     showAppMessage(
       t("settings.backupCreated")
     );
@@ -207,11 +321,8 @@ async function importBackupFile(file) {
   }
 
   try {
-    const text =
-      await file.text();
-
-    const backup =
-      JSON.parse(text);
+    const text = await file.text();
+    const backup = JSON.parse(text);
 
     if (!restoreLocalBackup(backup)) {
       throw new Error(
@@ -231,8 +342,7 @@ async function importBackupFile(file) {
     }
 
     if (
-      typeof showAppMessage ===
-      "function"
+      typeof showAppMessage === "function"
     ) {
       showAppMessage(
         t("settings.backupRestored")
@@ -247,8 +357,7 @@ async function importBackupFile(file) {
     );
 
     if (
-      typeof showAppMessage ===
-      "function"
+      typeof showAppMessage === "function"
     ) {
       showAppMessage(
         t("settings.backupError"),
@@ -259,11 +368,9 @@ async function importBackupFile(file) {
 }
 
 function clearStoredApplicationData() {
-  if (
-    !window.confirm(
-      t("settings.clearConfirm")
-    )
-  ) {
+  if (!window.confirm(
+    t("settings.clearConfirm")
+  )) {
     return;
   }
 
@@ -276,15 +383,13 @@ function clearStoredApplicationData() {
   );
 
   if (
-    typeof refreshApplication ===
-    "function"
+    typeof refreshApplication === "function"
   ) {
     refreshApplication();
   }
 
   if (
-    typeof showAppMessage ===
-    "function"
+    typeof showAppMessage === "function"
   ) {
     showAppMessage(
       t("settings.dataCleared")
@@ -295,9 +400,7 @@ function clearStoredApplicationData() {
 }
 
 function initializeSettings() {
-  applyApplicationSettings(
-    getSettings()
-  );
+  populateAddButtonIconSelect();
 
   document
     .querySelector(
@@ -318,16 +421,13 @@ function initializeSettings() {
     );
 
   document
-    .querySelector(
-      "#select-language"
-    )
+    .querySelector("#select-language")
     ?.addEventListener(
       "change",
-      (event) =>
-        updateSetting(
-          "language",
-          event.target.value
-        )
+      (event) => updateSetting(
+        "language",
+        event.target.value
+      )
     );
 
   document
@@ -336,37 +436,51 @@ function initializeSettings() {
     )
     ?.addEventListener(
       "change",
-      (event) =>
-        updateSetting(
-          "visualStyle",
-          event.target.value
-        )
+      (event) => updateSetting(
+        "visualStyle",
+        event.target.value
+      )
+    );
+
+  document
+    .querySelector("#select-palette")
+    ?.addEventListener(
+      "change",
+      (event) => updateSetting(
+        "palette",
+        event.target.value
+      )
+    );
+
+  document
+    .querySelector("#select-currency")
+    ?.addEventListener(
+      "change",
+      (event) => updateSetting(
+        "currency",
+        event.target.value
+      )
     );
 
   document
     .querySelector(
-      "#select-palette"
+      "#monthly-budget-input"
     )
     ?.addEventListener(
       "change",
-      (event) =>
-        updateSetting(
-          "palette",
-          event.target.value
-        )
+      saveMonthlyBudget
     );
 
   document
     .querySelector(
-      "#select-currency"
+      "#select-add-button-icon"
     )
     ?.addEventListener(
       "change",
-      (event) =>
-        updateSetting(
-          "currency",
-          event.target.value
-        )
+      (event) => updateSetting(
+        "addButtonIcon",
+        event.target.value
+      )
     );
 
   document
@@ -384,12 +498,11 @@ function initializeSettings() {
     )
     ?.addEventListener(
       "click",
-      () =>
-        document
-          .querySelector(
-            "#backup-file-input"
-          )
-          ?.click()
+      () => document
+        .querySelector(
+          "#backup-file-input"
+        )
+        ?.click()
     );
 
   document
@@ -399,37 +512,20 @@ function initializeSettings() {
     ?.addEventListener(
       "change",
       async (event) => {
-        const [file] =
-          event.target.files;
-
+        const [file] = event.target.files;
         await importBackupFile(file);
-
         event.target.value = "";
       }
     );
 
   document
-    .querySelector(
-      "#clear-data-button"
-    )
+    .querySelector("#clear-data-button")
     ?.addEventListener(
       "click",
       clearStoredApplicationData
     );
 
-  document
-    .querySelector(
-      "#settings-dialog"
-    )
-    ?.addEventListener(
-      "click",
-      (event) => {
-        if (
-          event.target.id ===
-          "settings-dialog"
-        ) {
-          closeSettingsDialog();
-        }
-      }
-    );
+  applyApplicationSettings(
+    getSettings()
+  );
 }
