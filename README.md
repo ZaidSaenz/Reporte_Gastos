@@ -1,3 +1,5 @@
-# Reporte_Ventas
-Formulario móvil para captura diaria y generación de reporte gastos
+# buget 
+
+a simply buyed history 
+
 

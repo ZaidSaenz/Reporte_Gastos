@@ -222,3 +222,37 @@ html[data-visual-style="pixel-art"] ::selection {
   background-color: var(--accent);
   color: var(--accent-contrast);
 }
+/* =========================================================
+   MONTO PRINCIPAL
+   ========================================================= */
+
+html[data-visual-style="pixel-art"] #current-spending-value {
+  display: block;
+  width: 100%;
+
+  margin: 0.15em 0 0.25em;
+
+  color: var(--text);
+
+  font-family:
+    "Arial Black",
+    "Segoe UI Black",
+    Impact,
+    sans-serif;
+
+  font-size: clamp(4.8rem, 19vw, 10rem);
+  font-weight: 900;
+  font-style: normal;
+  line-height: 0.82;
+
+  letter-spacing: -0.075em;
+  text-align: center;
+  white-space: nowrap;
+
+  font-variant-numeric: tabular-nums lining-nums;
+
+  text-shadow:
+    4px 0 0 var(--pixel-shadow),
+    0 4px 0 var(--pixel-shadow),
+    4px 4px 0 var(--pixel-shadow);
+}
