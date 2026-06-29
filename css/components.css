@@ -1,3 +1,4 @@
+
 .icon-button {
   display: inline-grid;
   place-items: center;
@@ -49,13 +50,34 @@
   font-size: 0.78rem;
 }
 
-.home-card {
+/* First screen layout */
+.home-hero {
   display: grid;
-  justify-items: center;
-  width: min(100%, 540px);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  align-items: center;
+  width: 100%;
+  min-height: calc(100svh - 72px);
+  padding:
+    clamp(12px, 2.5vh, 24px)
+    0
+    clamp(24px, 5vh, 48px);
+}
+
+/* Main spending card */
+.home-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 640px);
+  min-height: clamp(320px, 62svh, 600px);
   margin-inline: auto;
-  padding: clamp(26px, 7vw, 54px) clamp(18px, 5vw, 38px) 20px;
-  overflow: hidden;
+  padding:
+    clamp(30px, 7vw, 58px)
+    clamp(20px, 6vw, 48px);
+
+  /* Keep the card shape without clipping the amount */
+  overflow: visible;
+
   border: var(--panel-border-width, 1px) solid var(--border);
   border-radius: var(--panel-radius, 18px);
   background: var(--surface);
@@ -63,33 +85,60 @@
 }
 
 .home-card__summary {
+  display: grid;
+  justify-items: center;
   width: 100%;
+  min-width: 0;
   text-align: center;
 }
 
 .home-card__label {
-  margin-bottom: 8px;
+  margin: 0 0 clamp(14px, 3vh, 24px);
   color: var(--text-secondary);
-  font-size: 0.92rem;
+  font-size: clamp(0.78rem, 2.5vw, 1rem);
   font-weight: 800;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .home-card__amount {
   display: block;
+  width: 100%;
   max-width: 100%;
-  overflow: hidden;
-  font-size: clamp(2.5rem, 13vw, 5.2rem);
-  line-height: 1;
+
+  /* Extra bottom space prevents number clipping */
+  padding: 0.04em 0 0.12em;
+
+  color: var(--text-primary);
+
+  /* Serious and compact numeric font */
+  font-family:
+    "Bahnschrift",
+    "Arial Narrow",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  font-size: clamp(4.5rem, 19vw, 9rem);
+  font-weight: 700;
+  font-style: normal;
+  line-height: 0.96;
   letter-spacing: -0.05em;
-  text-overflow: ellipsis;
+
+  /* Keep every digit aligned */
+  font-variant-numeric:
+    tabular-nums
+    lining-nums;
+
+  text-align: center;
+  text-shadow: none;
   white-space: nowrap;
 }
 
 .home-card__budget {
   display: inline-grid;
   gap: 4px;
-  margin-top: 22px;
+  margin-top: clamp(22px, 4vh, 34px);
   padding: 10px 18px;
   border: 1px solid var(--border);
   border-radius: var(--small-radius, 11px);
@@ -106,13 +155,24 @@
   font-size: 1.12rem;
 }
 
+/* Small action below the card */
+.add-expense-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding:
+    clamp(16px, 3vh, 26px)
+    0
+    clamp(8px, 2vh, 18px);
+}
+
 .add-expense-button {
   display: grid;
   place-items: center;
-  width: clamp(82px, 24vw, 116px);
+  width: clamp(56px, 16vw, 72px);
   aspect-ratio: 1;
-  margin: clamp(30px, 8vw, 54px) 0;
-  padding: 16px;
+  margin: 0;
+  padding: 10px;
   overflow: hidden;
   color: var(--header-text);
   border: 0;
@@ -124,7 +184,7 @@
       var(--accent-dark)
     );
   box-shadow:
-    0 16px 34px var(--shadow-color),
+    0 10px 24px var(--shadow-color),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
   transition:
     transform 150ms ease,
@@ -132,48 +192,95 @@
 }
 
 .add-expense-button:hover {
-  transform: translateY(-2px) scale(1.015);
+  transform: translateY(-2px) scale(1.025);
 }
 
 .add-expense-button:active {
-  transform: translateY(1px) scale(0.985);
+  transform: translateY(1px) scale(0.975);
 }
 
 .add-expense-button__fallback {
-  font-size: clamp(2.4rem, 10vw, 4.2rem);
-  font-weight: 300;
-  line-height: 1;
+  font-size: clamp(2.2rem, 8vw, 3rem);
+  font-weight: 400;
+  line-height: 0.8;
 }
 
 .add-expense-button__image {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 72%;
+  height: 72%;
   object-fit: contain;
 }
 
-.history-launcher {
+/* History card below the first screen */
+.history-section {
+  width: min(100%, 640px);
+  margin-inline: auto;
+  padding:
+    clamp(18px, 4vh, 34px)
+    0
+    clamp(52px, 10vh, 96px);
+}
+
+.history-launcher.history-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 20px;
   width: 100%;
-  min-height: 54px;
-  padding: 12px 4px 4px;
+  min-height: clamp(150px, 24vh, 220px);
+  padding:
+    clamp(22px, 5vw, 36px)
+    clamp(20px, 5vw, 34px);
   color: var(--text-primary);
-  border: 0;
-  border-top: 1px solid var(--border);
-  background: transparent;
-  font-weight: 850;
+  border: var(--panel-border-width, 1px) solid var(--border);
+  border-radius: var(--panel-radius, 18px);
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
   text-align: left;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
 
-.history-launcher span:last-child {
+.history-launcher.history-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  background: var(--surface-secondary);
+}
+
+.history-launcher.history-card:active {
+  transform: translateY(0);
+}
+
+.history-card__content {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.history-card__title {
+  font-size: clamp(1.1rem, 4.5vw, 1.45rem);
+  font-weight: 900;
+  letter-spacing: 0.025em;
+}
+
+.history-card__hint {
+  color: var(--text-secondary);
+  font-size: clamp(0.78rem, 3vw, 0.94rem);
+  font-weight: 700;
+}
+
+.history-card__arrow {
+  flex: 0 0 auto;
   color: var(--accent-light);
-  font-size: 1.7rem;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 500;
   line-height: 1;
 }
 
+/* Floating app message */
 .app-message {
   position: fixed;
   left: 50%;
@@ -202,6 +309,7 @@
   color: var(--danger);
 }
 
+/* Dialog surfaces */
 .app-dialog,
 .history-overlay {
   color: var(--text-primary);
@@ -236,6 +344,7 @@
   margin-bottom: 18px;
 }
 
+/* Expense form */
 .expense-form {
   display: grid;
   gap: 16px;
@@ -291,6 +400,7 @@
   font-size: 1.25rem;
 }
 
+/* Category controls */
 .category-selector,
 .subcategory-selector {
   display: grid;
@@ -325,6 +435,7 @@
   box-shadow: inset 0 0 0 1px var(--accent);
 }
 
+/* Extra expense fields */
 .expense-more-details {
   border-top: 1px solid var(--border);
 }
@@ -358,6 +469,7 @@
   padding-top: 3px;
 }
 
+/* Form buttons */
 .form-actions,
 .details-actions {
   display: grid;
@@ -369,6 +481,7 @@
   grid-column: 1 / -1;
 }
 
+/* Full screen history */
 .history-overlay {
   width: 100vw;
   max-width: none;
@@ -496,6 +609,7 @@
   text-align: center;
 }
 
+/* Expense details */
 .expense-details-list {
   display: grid;
   gap: 0;
@@ -522,6 +636,7 @@
   overflow-wrap: anywhere;
 }
 
+/* Settings */
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -534,10 +649,28 @@
   margin-top: 18px;
 }
 
+/* Mobile adjustments */
 @media (max-width: 560px) {
+  .home-hero {
+    min-height: calc(100svh - 60px);
+    padding-top: 8px;
+  }
+
   .home-card {
-    min-height: min(78vh, 650px);
-    align-content: center;
+    min-height: clamp(300px, 60svh, 520px);
+    padding:
+      clamp(24px, 7vw, 38px)
+      clamp(16px, 5vw, 28px);
+  }
+
+  .home-card__amount {
+    /* Large, but still contained on small screens */
+    font-size: clamp(4rem, 19vw, 6.5rem);
+    line-height: 0.96;
+  }
+
+  .history-launcher.history-card {
+    min-height: 150px;
   }
 
   .app-dialog {

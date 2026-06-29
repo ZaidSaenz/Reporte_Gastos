@@ -57,7 +57,10 @@
 
   <header class="app-header">
     <div class="app-shell app-header__content">
-      <h1 class="visually-hidden" data-i18n="app.title">
+      <h1
+        class="visually-hidden"
+        data-i18n="app.title"
+      >
         Control de gastos
       </h1>
 
@@ -74,86 +77,114 @@
   </header>
 
   <main class="app-shell app-main">
-    <section
-      class="home-card"
-      aria-labelledby="current-spending-label"
-    >
-      <div class="home-card__summary">
-        <p
-          id="current-spending-label"
-          class="home-card__label"
-          data-i18n="dashboard.currentSpending"
-        >
-          Gasto actual
-        </p>
+    <!-- First screen -->
+    <section class="home-hero">
 
-        <strong
-          id="current-spending-value"
-          class="home-card__amount"
-        >
-          $0.00
-        </strong>
+      <!-- Current spending card -->
+      <section
+        class="home-card"
+        aria-labelledby="current-spending-label"
+      >
+        <div class="home-card__summary">
+          <p
+            id="current-spending-label"
+            class="home-card__label"
+            data-i18n="dashboard.currentSpending"
+          >
+            Gasto actual
+          </p>
 
-        <div
-          id="remaining-budget-block"
-          class="home-card__budget is-hidden"
-        >
-          <span data-i18n="dashboard.remainingBudget">
-            Presupuesto restante
-          </span>
-
-          <strong id="remaining-budget-value">
+          <strong
+            id="current-spending-value"
+            class="home-card__amount"
+          >
             $0.00
           </strong>
+
+          <div
+            id="remaining-budget-block"
+            class="home-card__budget is-hidden"
+          >
+            <span data-i18n="dashboard.remainingBudget">
+              Presupuesto restante
+            </span>
+
+            <strong id="remaining-budget-value">
+              $0.00
+            </strong>
+          </div>
         </div>
+      </section>
+
+      <!-- Main action -->
+      <div class="add-expense-section">
+        <button
+          id="open-expense-button"
+          class="add-expense-button"
+          type="button"
+          data-i18n-aria-label="expense.open"
+          aria-label="Agregar gasto"
+        >
+          <span
+            id="add-expense-icon-fallback"
+            class="add-expense-button__fallback"
+            aria-hidden="true"
+          >
+            +
+          </span>
+
+          <img
+            id="add-expense-icon"
+            class="add-expense-button__image is-hidden"
+            src=""
+            alt=""
+          >
+        </button>
       </div>
 
-      <button
-        id="open-expense-button"
-        class="add-expense-button"
-        type="button"
-        data-i18n-aria-label="expense.open"
-        aria-label="Agregar gasto"
-      >
-        <span
-          id="add-expense-icon-fallback"
-          class="add-expense-button__fallback"
-          aria-hidden="true"
-        >
-          +
-        </span>
-
-        <img
-          id="add-expense-icon"
-          class="add-expense-button__image is-hidden"
-          src=""
-          alt=""
-        >
-      </button>
-
-      <button
-        id="open-history-button"
-        class="history-launcher"
-        type="button"
-      >
-        <span data-i18n="history.title">
-          Historial de gastos
-        </span>
-
-        <span aria-hidden="true">›</span>
-      </button>
+      <!-- App messages -->
+      <p
+        id="app-message"
+        class="app-message"
+        aria-live="polite"
+      ></p>
     </section>
 
-    <p
-      id="app-message"
-      class="app-message"
-      aria-live="polite"
-    ></p>
+    <!-- History card -->
+    <section
+      class="history-section"
+      aria-labelledby="history-section-title"
+    >
+      <button
+        id="open-history-button"
+        class="history-launcher history-card"
+        type="button"
+      >
+        <span class="history-card__content">
+          <strong
+            id="history-section-title"
+            class="history-card__title"
+            data-i18n="history.title"
+          >
+            Historial de gastos
+          </strong>
+
+          <span class="history-card__hint">
+            Ver movimientos anteriores
+          </span>
+        </span>
+
+        <span
+          class="history-card__arrow"
+          aria-hidden="true"
+        >
+          ›
+        </span>
+      </button>
+    </section>
   </main>
 
-  <!-- =====================================================
-       ADD OR EDIT EXPENSE
-  ====================================================== -->
+  <!-- Add or edit expense -->
   <dialog
     id="expense-dialog"
     class="app-dialog expense-dialog"
@@ -334,9 +365,7 @@
     </form>
   </dialog>
 
-  <!-- =====================================================
-       HISTORY OVERLAY
-  ====================================================== -->
+  <!-- History overlay -->
   <dialog
     id="history-dialog"
     class="history-overlay"
@@ -356,7 +385,10 @@
         Historial de gastos
       </h2>
 
-      <span class="overlay-header__spacer" aria-hidden="true"></span>
+      <span
+        class="overlay-header__spacer"
+        aria-hidden="true"
+      ></span>
     </div>
 
     <div
@@ -365,9 +397,7 @@
     ></div>
   </dialog>
 
-  <!-- =====================================================
-       EXPENSE DETAILS
-  ====================================================== -->
+  <!-- Expense details -->
   <dialog
     id="expense-details-dialog"
     class="app-dialog details-dialog"
@@ -390,23 +420,43 @@
 
     <dl class="expense-details-list">
       <div>
-        <dt data-i18n="expense.amount">Importe</dt>
-        <dd id="details-amount">$0.00</dd>
+        <dt data-i18n="expense.amount">
+          Importe
+        </dt>
+
+        <dd id="details-amount">
+          $0.00
+        </dd>
       </div>
 
       <div>
-        <dt data-i18n="expense.category">Categoría</dt>
-        <dd id="details-category">—</dd>
+        <dt data-i18n="expense.category">
+          Categoría
+        </dt>
+
+        <dd id="details-category">
+          —
+        </dd>
       </div>
 
       <div>
-        <dt data-i18n="expense.date">Fecha</dt>
-        <dd id="details-date">—</dd>
+        <dt data-i18n="expense.date">
+          Fecha
+        </dt>
+
+        <dd id="details-date">
+          —
+        </dd>
       </div>
 
       <div>
-        <dt data-i18n="expense.description">Descripción</dt>
-        <dd id="details-description">—</dd>
+        <dt data-i18n="expense.description">
+          Descripción
+        </dt>
+
+        <dd id="details-description">
+          —
+        </dd>
       </div>
     </dl>
 
@@ -431,9 +481,7 @@
     </div>
   </dialog>
 
-  <!-- =====================================================
-       SETTINGS
-  ====================================================== -->
+  <!-- Settings -->
   <dialog
     id="settings-dialog"
     class="app-dialog settings-dialog"
@@ -464,8 +512,13 @@
         </label>
 
         <select id="select-language">
-          <option value="es">Español</option>
-          <option value="en">English</option>
+          <option value="es">
+            Español
+          </option>
+
+          <option value="en">
+            English
+          </option>
         </select>
       </div>
 
@@ -478,24 +531,31 @@
         </label>
 
         <select id="select-visual-style">
-          <option value="matte" data-i18n="settings.matte">
+          <option
+            value="matte"
+            data-i18n="settings.matte"
+          >
             Mate cómodo
           </option>
-          <option value="pixel-art" data-i18n="settings.pixelArt">
+
+          <option
+            value="pixel-art"
+            data-i18n="settings.pixelArt"
+          >
             Pixel art
           </option>
-          <option value="cyberpunk" data-i18n="settings.cyberpunk">
+
+          <option
+            value="cyberpunk"
+            data-i18n="settings.cyberpunk"
+          >
             Cyberpunk
           </option>
         </select>
       </div>
 
-      <!--
-        Compatibilidad temporal con settings.js.
-        Los estilos visuales fijos ya controlan su propia paleta,
-        por lo que este selector permanece oculto hasta retirar
-        su lógica del archivo JavaScript.
-      -->
+      <!-- Temporary palette support -->
+      <!-- Remove this field after updating settings.js -->
       <div
         class="field is-hidden"
         hidden
@@ -512,14 +572,61 @@
           id="select-palette"
           tabindex="-1"
         >
-          <option value="magenta" data-i18n="palettes.magenta">Magenta</option>
-          <option value="ocean" data-i18n="palettes.ocean">Océano</option>
-          <option value="emerald" data-i18n="palettes.emerald">Esmeralda</option>
-          <option value="violet" data-i18n="palettes.violet">Violeta</option>
-          <option value="amber" data-i18n="palettes.amber">Ámbar</option>
-          <option value="powder" data-i18n="palettes.powder">Azul pastel</option>
-          <option value="sage" data-i18n="palettes.sage">Verde salvia</option>
-          <option value="warmGray" data-i18n="palettes.warmGray">Gris cálido</option>
+          <option
+            value="magenta"
+            data-i18n="palettes.magenta"
+          >
+            Magenta
+          </option>
+
+          <option
+            value="ocean"
+            data-i18n="palettes.ocean"
+          >
+            Océano
+          </option>
+
+          <option
+            value="emerald"
+            data-i18n="palettes.emerald"
+          >
+            Esmeralda
+          </option>
+
+          <option
+            value="violet"
+            data-i18n="palettes.violet"
+          >
+            Violeta
+          </option>
+
+          <option
+            value="amber"
+            data-i18n="palettes.amber"
+          >
+            Ámbar
+          </option>
+
+          <option
+            value="powder"
+            data-i18n="palettes.powder"
+          >
+            Azul pastel
+          </option>
+
+          <option
+            value="sage"
+            data-i18n="palettes.sage"
+          >
+            Verde salvia
+          </option>
+
+          <option
+            value="warmGray"
+            data-i18n="palettes.warmGray"
+          >
+            Gris cálido
+          </option>
         </select>
       </div>
 
@@ -532,9 +639,17 @@
         </label>
 
         <select id="select-currency">
-          <option value="MXN">MXN</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
+          <option value="MXN">
+            MXN
+          </option>
+
+          <option value="USD">
+            USD
+          </option>
+
+          <option value="EUR">
+            EUR
+          </option>
         </select>
       </div>
 
@@ -611,13 +726,41 @@
     >
   </dialog>
 
-  <script src="./js/categories.js" defer></script>
-  <script src="./js/storage.js" defer></script>
-  <script src="./js/i18n.js" defer></script>
-  <script src="./js/settings.js" defer></script>
-  <script src="./js/history.js" defer></script>
-  <script src="./js/copy-history.js" defer></script>
-  <script src="./js/app.js" defer></script>
+  <script
+    src="./js/categories.js"
+    defer
+  ></script>
+
+  <script
+    src="./js/storage.js"
+    defer
+  ></script>
+
+  <script
+    src="./js/i18n.js"
+    defer
+  ></script>
+
+  <script
+    src="./js/settings.js"
+    defer
+  ></script>
+
+  <script
+    src="./js/history.js"
+    defer
+  ></script>
+
+  <script
+    src="./js/copy-history.js"
+    defer
+  ></script>
+
+  <script
+    src="./js/app.js"
+    defer
+  ></script>
+
   <script
     type="module"
     src="./js/effects/visual-style-manager.js"
