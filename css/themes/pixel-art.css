@@ -1,0 +1,872 @@
+/* =========================================================
+   TEMA: PIXEL ART EDITORIAL INDUSTRIAL
+   Archivo: css/themes/pixel-art.css
+   Activación: <html data-theme="pixel-art">
+   ========================================================= */
+
+/* =========================================================
+   FUENTES
+   ========================================================= */
+
+@font-face {
+  font-family: "Pixel Operator";
+  src: url("../../assets/fonts/PixelOperator.ttf")
+    format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pixel Operator";
+  src: url("../../assets/fonts/PixelOperator-Bold.ttf")
+    format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* =========================================================
+   TOKENS DEL TEMA
+   ========================================================= */
+
+[data-theme="pixel-art"] {
+  /* Fondo y superficies */
+  --page-background: #090a10;
+  --surface: #171a18;
+  --surface-secondary: #25291f;
+  --input-background: #10120f;
+
+  /* Texto */
+  --text-primary: #f7f0c9;
+  --text-secondary: #a7a392;
+
+  /* Acento arena */
+  --accent: #d8c66a;
+  --accent-light: #f1dfa0;
+  --accent-dark: #8d7a32;
+  --accent-soft: rgba(216, 198, 106, 0.14);
+
+  /* Estados */
+  --success: #9aa776;
+  --danger: #ab5830;
+  --danger-soft: rgba(171, 88, 48, 0.18);
+
+  /* Bordes y profundidad */
+  --border: #4f5641;
+  --header-text: #11130f;
+  --shadow-color: #050609;
+  --focus-ring: rgba(216, 198, 106, 0.28);
+
+  /* Forma */
+  --panel-radius: 0;
+  --control-radius: 0;
+  --small-radius: 0;
+  --panel-border-width: 2px;
+
+  /* Sombras */
+  --panel-shadow:
+    6px 6px 0 var(--shadow-color);
+
+  /* Tipografía */
+  --font-ui:
+    "Pixel Operator",
+    "Courier New",
+    ui-monospace,
+    monospace;
+
+  --font-display:
+    "Pixel Operator",
+    "Arial Narrow",
+    monospace;
+
+  /* Movimiento */
+  --transition-speed: 80ms;
+  --transition-function: steps(1);
+
+  color-scheme: dark;
+}
+
+/* =========================================================
+   BASE DEL TEMA
+   ========================================================= */
+
+[data-theme="pixel-art"] body {
+  color: var(--text-primary);
+  background-color: var(--page-background);
+
+  background-image:
+    linear-gradient(
+      rgba(167, 163, 146, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(167, 163, 146, 0.025) 1px,
+      transparent 1px
+    );
+
+  background-size: 16px 16px;
+
+  font-family: var(--font-ui);
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="pixel-art"] ::selection {
+  color: var(--header-text);
+  background: var(--accent);
+}
+
+[data-theme="pixel-art"] img,
+[data-theme="pixel-art"] canvas {
+  image-rendering: pixelated;
+}
+
+/* =========================================================
+   TIPOGRAFÍA
+   ========================================================= */
+
+[data-theme="pixel-art"] h1,
+[data-theme="pixel-art"] h2,
+[data-theme="pixel-art"] h3,
+[data-theme="pixel-art"] .history-card__title {
+  color: var(--text-primary);
+
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+
+  text-transform: uppercase;
+}
+
+[data-theme="pixel-art"] .home-card__label,
+[data-theme="pixel-art"] .eyebrow,
+[data-theme="pixel-art"] .field-help,
+[data-theme="pixel-art"] .history-card__hint,
+[data-theme="pixel-art"] label,
+[data-theme="pixel-art"] legend {
+  color: var(--text-secondary);
+
+  font-family: var(--font-ui);
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.075em;
+
+  text-transform: uppercase;
+}
+
+[data-theme="pixel-art"] button,
+[data-theme="pixel-art"] .button,
+[data-theme="pixel-art"] .category-option,
+[data-theme="pixel-art"] .subcategory-option {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+}
+
+/*
+ * No cambia font-size.
+ * El tamaño del número lo controla components.css.
+ */
+[data-theme="pixel-art"] .home-card__amount {
+  color: var(--text-primary);
+
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.84;
+  letter-spacing: -0.055em;
+
+  font-variant-numeric:
+    tabular-nums
+    lining-nums;
+
+  text-shadow:
+    3px 0 0 var(--shadow-color),
+    0 3px 0 var(--shadow-color),
+    3px 3px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"] .home-card__budget strong,
+[data-theme="pixel-art"] .history-row__amount,
+[data-theme="pixel-art"] .currency-input {
+  font-family: var(--font-display);
+
+  font-variant-numeric:
+    tabular-nums
+    lining-nums;
+
+  letter-spacing: -0.025em;
+}
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
+[data-theme="pixel-art"] .app-header {
+  border-bottom:
+    2px solid var(--border);
+
+  background:
+    rgba(9, 10, 16, 0.96);
+
+  box-shadow:
+    0 3px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"]
+  .app-header .icon-button {
+  color: var(--accent-light);
+
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    var(--surface);
+
+  box-shadow:
+    3px 3px 0 var(--shadow-color);
+}
+
+/* =========================================================
+   TARJETA PRINCIPAL
+   ========================================================= */
+
+[data-theme="pixel-art"] .home-card {
+  position: relative;
+
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.018),
+      transparent 42%
+    ),
+    var(--surface);
+
+  box-shadow:
+    var(--panel-shadow);
+}
+
+/* Marco interior discreto */
+[data-theme="pixel-art"]
+  .home-card::before {
+  content: "";
+
+  position: absolute;
+  inset: 6px;
+
+  pointer-events: none;
+
+  border:
+    1px solid rgba(167, 163, 146, 0.14);
+}
+
+/* Marca técnica superior */
+[data-theme="pixel-art"]
+  .home-card::after {
+  content: "";
+
+  position: absolute;
+  top: -2px;
+  left: 16px;
+
+  width: 42px;
+  height: 2px;
+
+  background:
+    var(--accent);
+
+  box-shadow:
+    48px 0 0 var(--border),
+    54px 0 0 var(--border);
+}
+
+/* =========================================================
+   PRESUPUESTO
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .home-card__budget {
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    var(--surface-secondary);
+
+  box-shadow:
+    3px 3px 0 var(--shadow-color),
+    inset 2px 2px 0
+      rgba(255, 255, 255, 0.025);
+}
+
+[data-theme="pixel-art"]
+  .home-card__budget span {
+  color: var(--text-secondary);
+
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+[data-theme="pixel-art"]
+  .home-card__budget strong {
+  color: var(--accent-light);
+}
+
+/* =========================================================
+   BOTÓN PRINCIPAL
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .add-expense-button {
+  color: var(--header-text);
+
+  border:
+    3px solid var(--accent-light);
+
+  border-radius: 0;
+
+  background:
+    var(--accent);
+
+  box-shadow:
+    6px 6px 0 var(--accent-dark),
+    9px 9px 0 var(--shadow-color);
+
+  transition:
+    transform
+    var(--transition-speed)
+    var(--transition-function),
+
+    box-shadow
+    var(--transition-speed)
+    var(--transition-function),
+
+    background-color
+    var(--transition-speed)
+    var(--transition-function);
+}
+
+[data-theme="pixel-art"]
+  .add-expense-button:hover {
+  background:
+    var(--accent-light);
+
+  transform:
+    translate(-2px, -2px);
+
+  box-shadow:
+    8px 8px 0 var(--accent-dark),
+    11px 11px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"]
+  .add-expense-button:active {
+  transform:
+    translate(4px, 4px);
+
+  box-shadow:
+    2px 2px 0 var(--accent-dark),
+    4px 4px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"]
+  .add-expense-button__fallback {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.7;
+
+  transform:
+    translateY(-1px);
+}
+
+/* =========================================================
+   TARJETA DE HISTORIAL
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .history-launcher.history-card {
+  position: relative;
+
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    var(--surface);
+
+  box-shadow:
+    var(--panel-shadow);
+
+  transition:
+    transform
+    var(--transition-speed)
+    var(--transition-function),
+
+    border-color
+    var(--transition-speed)
+    var(--transition-function),
+
+    background-color
+    var(--transition-speed)
+    var(--transition-function),
+
+    box-shadow
+    var(--transition-speed)
+    var(--transition-function);
+}
+
+[data-theme="pixel-art"]
+  .history-launcher.history-card::before {
+  content: "";
+
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  width: 5px;
+  height: 5px;
+
+  background:
+    var(--accent);
+
+  box-shadow:
+    -8px 0 0 var(--border),
+    -16px 0 0 var(--border);
+}
+
+[data-theme="pixel-art"]
+  .history-launcher.history-card:hover {
+  border-color:
+    var(--accent);
+
+  background:
+    var(--surface-secondary);
+
+  transform:
+    translate(-2px, -2px);
+
+  box-shadow:
+    8px 8px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"]
+  .history-launcher.history-card:active {
+  transform:
+    translate(3px, 3px);
+
+  box-shadow:
+    3px 3px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"]
+  .history-card__hint {
+  color:
+    var(--text-secondary);
+}
+
+[data-theme="pixel-art"]
+  .history-card__arrow {
+  color:
+    var(--accent);
+
+  font-family:
+    var(--font-display);
+
+  text-shadow:
+    2px 2px 0 var(--shadow-color);
+}
+
+/* =========================================================
+   DIÁLOGOS
+   ========================================================= */
+
+[data-theme="pixel-art"] .app-dialog,
+[data-theme="pixel-art"] .history-overlay {
+  color:
+    var(--text-primary);
+
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    var(--surface);
+
+  box-shadow:
+    8px 8px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"]
+  dialog::backdrop {
+  background:
+    rgba(5, 6, 9, 0.88);
+}
+
+[data-theme="pixel-art"]
+  .dialog-header,
+[data-theme="pixel-art"]
+  .overlay-header {
+  border-bottom:
+    2px solid var(--border);
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--surface-secondary),
+      var(--surface)
+    );
+}
+
+/* =========================================================
+   BOTONES GENERALES
+   ========================================================= */
+
+[data-theme="pixel-art"] .button,
+[data-theme="pixel-art"] .icon-button,
+[data-theme="pixel-art"] .category-option,
+[data-theme="pixel-art"] .subcategory-option,
+[data-theme="pixel-art"] .history-row__details {
+  border-radius: 0;
+
+  transition:
+    transform
+    var(--transition-speed)
+    var(--transition-function),
+
+    box-shadow
+    var(--transition-speed)
+    var(--transition-function),
+
+    color
+    var(--transition-speed)
+    var(--transition-function),
+
+    border-color
+    var(--transition-speed)
+    var(--transition-function),
+
+    background-color
+    var(--transition-speed)
+    var(--transition-function);
+}
+
+[data-theme="pixel-art"] .button,
+[data-theme="pixel-art"] .category-option,
+[data-theme="pixel-art"] .subcategory-option,
+[data-theme="pixel-art"] .history-row__details {
+  color:
+    var(--text-primary);
+
+  border:
+    2px solid var(--border);
+
+  background:
+    var(--surface-secondary);
+
+  box-shadow:
+    3px 3px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"] .button:hover,
+[data-theme="pixel-art"]
+  .category-option:hover,
+[data-theme="pixel-art"]
+  .subcategory-option:hover,
+[data-theme="pixel-art"]
+  .history-row__details:hover {
+  color:
+    var(--accent-light);
+
+  border-color:
+    var(--accent-dark);
+
+  background:
+    #343a2b;
+
+  transform:
+    translate(-1px, -1px);
+
+  box-shadow:
+    4px 4px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"] .button:active,
+[data-theme="pixel-art"]
+  .category-option:active,
+[data-theme="pixel-art"]
+  .subcategory-option:active,
+[data-theme="pixel-art"]
+  .history-row__details:active {
+  transform:
+    translate(2px, 2px);
+
+  box-shadow:
+    1px 1px 0 var(--shadow-color);
+}
+
+/* =========================================================
+   BOTÓN PRIMARIO
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .button--primary {
+  color:
+    var(--header-text);
+
+  border-color:
+    var(--accent-light);
+
+  background:
+    var(--accent);
+
+  box-shadow:
+    4px 4px 0 var(--accent-dark),
+    7px 7px 0 var(--shadow-color);
+}
+
+[data-theme="pixel-art"]
+  .button--primary:hover {
+  color:
+    var(--header-text);
+
+  background:
+    var(--accent-light);
+}
+
+/* =========================================================
+   BOTÓN SECUNDARIO
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .button--secondary {
+  color:
+    var(--text-primary);
+
+  background:
+    var(--surface-secondary);
+}
+
+/* =========================================================
+   BOTÓN DE PELIGRO
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .button--danger {
+  color:
+    #f7f0c9;
+
+  border-color:
+    #884117;
+
+  background:
+    var(--danger);
+
+  box-shadow:
+    4px 4px 0 #884117,
+    7px 7px 0 var(--shadow-color);
+}
+
+/* =========================================================
+   CATEGORÍAS
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .category-option.is-selected,
+[data-theme="pixel-art"]
+  .subcategory-option.is-selected,
+[data-theme="pixel-art"]
+  .category-option[aria-pressed="true"],
+[data-theme="pixel-art"]
+  .subcategory-option[aria-pressed="true"] {
+  color:
+    var(--header-text);
+
+  border-color:
+    var(--accent-light);
+
+  background:
+    var(--accent);
+
+  box-shadow:
+    4px 4px 0 var(--accent-dark),
+    7px 7px 0 var(--shadow-color);
+}
+
+/* =========================================================
+   FORMULARIOS
+   ========================================================= */
+
+[data-theme="pixel-art"] input,
+[data-theme="pixel-art"] select,
+[data-theme="pixel-art"] textarea {
+  color:
+    var(--text-primary);
+
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    var(--input-background);
+
+  box-shadow:
+    inset 3px 3px 0
+    var(--shadow-color);
+
+  font-family:
+    var(--font-ui);
+
+  font-weight: 400;
+  letter-spacing: 0.035em;
+
+  transition:
+    border-color
+    var(--transition-speed)
+    var(--transition-function),
+
+    box-shadow
+    var(--transition-speed)
+    var(--transition-function);
+}
+
+[data-theme="pixel-art"]
+  input::placeholder,
+[data-theme="pixel-art"]
+  textarea::placeholder {
+  color:
+    #787d68;
+}
+
+[data-theme="pixel-art"] input:focus,
+[data-theme="pixel-art"] select:focus,
+[data-theme="pixel-art"] textarea:focus {
+  border-color:
+    var(--accent);
+
+  outline:
+    3px solid var(--focus-ring);
+
+  box-shadow:
+    inset 3px 3px 0
+    var(--shadow-color);
+}
+
+/* =========================================================
+   DETALLES DESPLEGABLES
+   ========================================================= */
+
+[data-theme="pixel-art"] details {
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    var(--surface-secondary);
+}
+
+[data-theme="pixel-art"] summary {
+  color:
+    var(--accent-light);
+
+  font-family:
+    var(--font-ui);
+
+  letter-spacing:
+    0.04em;
+
+  text-transform:
+    uppercase;
+}
+
+/* =========================================================
+   FILAS DEL HISTORIAL
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  .history-row {
+  border:
+    2px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    var(--surface-secondary);
+
+  box-shadow:
+    3px 3px 0 var(--shadow-color);
+}
+
+/* =========================================================
+   FOCO Y ACCESIBILIDAD
+   ========================================================= */
+
+[data-theme="pixel-art"]
+  :focus-visible {
+  outline:
+    2px solid var(--accent-light);
+
+  outline-offset:
+    4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="pixel-art"] *,
+  [data-theme="pixel-art"] *::before,
+  [data-theme="pixel-art"] *::after {
+    animation-duration:
+      0ms !important;
+
+    transition-duration:
+      0ms !important;
+
+    scroll-behavior:
+      auto !important;
+  }
+}
+
+/* =========================================================
+   TELÉFONO
+   ========================================================= */
+
+@media (max-width: 520px) {
+  [data-theme="pixel-art"] {
+    --panel-shadow:
+      5px 5px 0
+      var(--shadow-color);
+  }
+
+  [data-theme="pixel-art"]
+    .home-card__amount {
+    text-shadow:
+      2px 0 0 var(--shadow-color),
+      0 2px 0 var(--shadow-color),
+      2px 2px 0 var(--shadow-color);
+  }
+
+  [data-theme="pixel-art"]
+    .add-expense-button {
+    box-shadow:
+      5px 5px 0 var(--accent-dark),
+      8px 8px 0 var(--shadow-color);
+  }
+}

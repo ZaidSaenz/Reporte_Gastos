@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html
   lang="es"
-  data-visual-style="matte"
+  data-theme="default"
 >
 <head>
   <meta charset="UTF-8">
@@ -30,11 +30,6 @@
 
   <link
     rel="stylesheet"
-    href="./css/palettes.css"
-  >
-
-  <link
-    rel="stylesheet"
     href="./css/base.css"
   >
 
@@ -45,15 +40,11 @@
 
   <link
     rel="stylesheet"
-    href="./css/visual-styles.css"
+    href="./css/themes.css"
   >
 </head>
 
 <body>
-  <div
-    class="visual-effect-layer"
-    aria-hidden="true"
-  ></div>
 
   <header class="app-header">
     <div class="app-shell app-header__content">
@@ -527,10 +518,14 @@
           for="select-visual-style"
           data-i18n="settings.visualStyle"
         >
-          Estilo visual
+          Tema visual
         </label>
 
         <select id="select-visual-style">
+          <option value="default">
+            Predeterminado
+          </option>
+
           <option
             value="matte"
             data-i18n="settings.matte"
@@ -550,82 +545,6 @@
             data-i18n="settings.cyberpunk"
           >
             Cyberpunk
-          </option>
-        </select>
-      </div>
-
-      <!-- Temporary palette support -->
-      <!-- Remove this field after updating settings.js -->
-      <div
-        class="field is-hidden"
-        hidden
-        aria-hidden="true"
-      >
-        <label
-          for="select-palette"
-          data-i18n="settings.palette"
-        >
-          Paleta de colores
-        </label>
-
-        <select
-          id="select-palette"
-          tabindex="-1"
-        >
-          <option
-            value="magenta"
-            data-i18n="palettes.magenta"
-          >
-            Magenta
-          </option>
-
-          <option
-            value="ocean"
-            data-i18n="palettes.ocean"
-          >
-            Océano
-          </option>
-
-          <option
-            value="emerald"
-            data-i18n="palettes.emerald"
-          >
-            Esmeralda
-          </option>
-
-          <option
-            value="violet"
-            data-i18n="palettes.violet"
-          >
-            Violeta
-          </option>
-
-          <option
-            value="amber"
-            data-i18n="palettes.amber"
-          >
-            Ámbar
-          </option>
-
-          <option
-            value="powder"
-            data-i18n="palettes.powder"
-          >
-            Azul pastel
-          </option>
-
-          <option
-            value="sage"
-            data-i18n="palettes.sage"
-          >
-            Verde salvia
-          </option>
-
-          <option
-            value="warmGray"
-            data-i18n="palettes.warmGray"
-          >
-            Gris cálido
           </option>
         </select>
       </div>
@@ -759,11 +678,6 @@
   <script
     src="./js/app.js"
     defer
-  ></script>
-
-  <script
-    type="module"
-    src="./js/effects/visual-style-manager.js"
   ></script>
 </body>
 </html>

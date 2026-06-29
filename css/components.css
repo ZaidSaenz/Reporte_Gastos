@@ -105,13 +105,8 @@
   display: block;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
 
-  /* Extra bottom space prevents number clipping */
-  padding: 0.04em 0 0.12em;
-
-  color: var(--text-primary);
-
-  /* Serious and compact numeric font */
   font-family:
     "Bahnschrift",
     "Arial Narrow",
@@ -119,13 +114,16 @@
     Arial,
     sans-serif;
 
-  font-size: clamp(4.5rem, 19vw, 9rem);
+  /*
+   * Antes era 19vw y llegaba hasta 9rem.
+   * Esta escala es más segura para teléfonos.
+   */
+  font-size: clamp(3rem, 14vw, 7rem);
   font-weight: 700;
   font-style: normal;
-  line-height: 0.96;
-  letter-spacing: -0.05em;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
 
-  /* Keep every digit aligned */
   font-variant-numeric:
     tabular-nums
     lining-nums;
@@ -133,8 +131,9 @@
   text-align: center;
   text-shadow: none;
   white-space: nowrap;
-}
 
+  overflow: hidden;
+}
 .home-card__budget {
   display: inline-grid;
   gap: 4px;

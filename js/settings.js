@@ -2,16 +2,12 @@
 // APPLICATION SETTINGS
 // ============================================================
 
-const PALETTE_THEME_COLORS = Object.freeze({
-  magenta: "#d10082",
-  ocean: "#147d92",
-  emerald: "#2f7d5c",
-  violet: "#7256c9",
-  amber: "#bd7417",
-  powder: "#7896b2",
-  sage: "#718b78",
-  warmGray: "#80766c"
-});
+const AVAILABLE_THEMES = Object.freeze([
+  "default",
+  "matte",
+  "pixel-art",
+  "cyberpunk"
+]);
 
 // Add new icon files here when the icon library is ready.
 // Example:
@@ -109,37 +105,58 @@ function applyAddButtonIcon(settings) {
   image.src = icon.src;
 }
 
+function getValidTheme(themeName) {
+  return AVAILABLE_THEMES.includes(
+    themeName
+  )
+    ? themeName
+    : "default";
+}
+
 function applyApplicationSettings(
   settings = getSettings()
 ) {
   const root = document.documentElement;
 
-  root.lang = settings.language || "es";
-  root.dataset.visualStyle =
-    settings.visualStyle || "modern";
-  root.dataset.palette =
-    settings.palette || "magenta";
-
-  const themeColor =
-    PALETTE_THEME_COLORS[
-      settings.palette
-    ] || PALETTE_THEME_COLORS.magenta;
-
-  document
-    .querySelector(
-      'meta[name="theme-color"]'
-    )
-    ?.setAttribute(
-      "content",
-      themeColor
+  const selectedTheme =
+    getValidTheme(
+      settings.visualStyle
     );
 
+  root.lang =
+    settings.language || "es";
+
+  /*
+   * Nuevo sistema:
+   *
+   * <html data-theme="pixel-art">
+   */
+  root.dataset.theme =
+    selectedTheme;
+
+  /*
+   * Elimina atributos pertenecientes
+   * al sistema visual anterior.
+   */
+  delete root.dataset.visualStyle;
+  delete root.dataset.palette;
+
+  /*
+   * Conservamos temporalmente el nombre
+   * "visualStyle" dentro de storage.js.
+   *
+   * De esta manera no rompemos ajustes
+   * guardados ni respaldos anteriores.
+   */
   const fieldValues = {
-    "#select-language": settings.language,
+    "#select-language":
+      settings.language || "es",
+
     "#select-visual-style":
-      settings.visualStyle,
-    "#select-palette": settings.palette,
-    "#select-currency": settings.currency
+      selectedTheme,
+
+    "#select-currency":
+      settings.currency || "MXN"
   };
 
   Object.entries(fieldValues).forEach(
@@ -168,6 +185,27 @@ function applyApplicationSettings(
         : "";
   }
 
+  /*
+   * Obtiene del tema activo el color
+   * usado por la barra del navegador
+   * y la aplicación instalada.
+   */
+  const themeColor =
+    getComputedStyle(root)
+      .getPropertyValue(
+        "--page-background"
+      )
+      .trim() || "#222522";
+
+  document
+    .querySelector(
+      'meta[name="theme-color"]'
+    )
+    ?.setAttribute(
+      "content",
+      themeColor
+    );
+
   applyTranslations();
   populateAddButtonIconSelect();
   applyAddButtonIcon(settings);
@@ -176,7 +214,10 @@ function applyApplicationSettings(
     new CustomEvent(
       "settingschanged",
       {
-        detail: settings
+        detail: {
+          ...settings,
+          visualStyle: selectedTheme
+        }
       }
     )
   );
@@ -193,7 +234,8 @@ function openSettingsDialog() {
   }
 
   if (
-    typeof dialog.showModal === "function"
+    typeof dialog.showModal ===
+    "function"
   ) {
     if (!dialog.open) {
       dialog.showModal();
@@ -213,7 +255,10 @@ function closeSettingsDialog() {
     return;
   }
 
-  if (typeof dialog.close === "function") {
+  if (
+    typeof dialog.close ===
+    "function"
+  ) {
     if (dialog.open) {
       dialog.close();
     }
@@ -235,7 +280,10 @@ function updateSetting(
     return false;
   }
 
-  applyApplicationSettings(nextSettings);
+  applyApplicationSettings(
+    nextSettings
+  );
+
   return true;
 }
 
@@ -252,11 +300,16 @@ function normalizeOptionalBudget(value) {
 
   const budget = Number(text);
 
-  if (!Number.isFinite(budget) || budget < 0) {
+  if (
+    !Number.isFinite(budget) ||
+    budget < 0
+  ) {
     return null;
   }
 
-  return Number(budget.toFixed(2));
+  return Number(
+    budget.toFixed(2)
+  );
 }
 
 function saveMonthlyBudget() {
@@ -270,11 +323,18 @@ function saveMonthlyBudget() {
   }
 
   const budget =
-    normalizeOptionalBudget(input.value);
+    normalizeOptionalBudget(
+      input.value
+    );
 
   if (budget === null) {
     input.value = "";
-    updateSetting("monthlyBudget", 0);
+
+    updateSetting(
+      "monthlyBudget",
+      0
+    );
+
     return;
   }
 
@@ -283,32 +343,50 @@ function saveMonthlyBudget() {
       ? budget.toFixed(2)
       : "";
 
-  updateSetting("monthlyBudget", budget);
+  updateSetting(
+    "monthlyBudget",
+    budget
+  );
 }
 
 function downloadBackup() {
-  const backup = createLocalBackup();
+  const backup =
+    createLocalBackup();
 
   const blob = new Blob(
-    [JSON.stringify(backup, null, 2)],
+    [
+      JSON.stringify(
+        backup,
+        null,
+        2
+      )
+    ],
     {
       type: "application/json"
     }
   );
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  const url =
+    URL.createObjectURL(blob);
+
+  const link =
+    document.createElement("a");
 
   link.href = url;
+
   link.download =
     `expense-tracker-backup-${getLocalDateKey()}.json`;
 
   document.body.append(link);
   link.click();
   link.remove();
+
   URL.revokeObjectURL(url);
 
-  if (typeof showAppMessage === "function") {
+  if (
+    typeof showAppMessage ===
+    "function"
+  ) {
     showAppMessage(
       t("settings.backupCreated")
     );
@@ -321,8 +399,11 @@ async function importBackupFile(file) {
   }
 
   try {
-    const text = await file.text();
-    const backup = JSON.parse(text);
+    const text =
+      await file.text();
+
+    const backup =
+      JSON.parse(text);
 
     if (!restoreLocalBackup(backup)) {
       throw new Error(
@@ -342,7 +423,8 @@ async function importBackupFile(file) {
     }
 
     if (
-      typeof showAppMessage === "function"
+      typeof showAppMessage ===
+      "function"
     ) {
       showAppMessage(
         t("settings.backupRestored")
@@ -357,7 +439,8 @@ async function importBackupFile(file) {
     );
 
     if (
-      typeof showAppMessage === "function"
+      typeof showAppMessage ===
+      "function"
     ) {
       showAppMessage(
         t("settings.backupError"),
@@ -368,9 +451,11 @@ async function importBackupFile(file) {
 }
 
 function clearStoredApplicationData() {
-  if (!window.confirm(
-    t("settings.clearConfirm")
-  )) {
+  if (
+    !window.confirm(
+      t("settings.clearConfirm")
+    )
+  ) {
     return;
   }
 
@@ -383,13 +468,15 @@ function clearStoredApplicationData() {
   );
 
   if (
-    typeof refreshApplication === "function"
+    typeof refreshApplication ===
+    "function"
   ) {
     refreshApplication();
   }
 
   if (
-    typeof showAppMessage === "function"
+    typeof showAppMessage ===
+    "function"
   ) {
     showAppMessage(
       t("settings.dataCleared")
@@ -421,7 +508,9 @@ function initializeSettings() {
     );
 
   document
-    .querySelector("#select-language")
+    .querySelector(
+      "#select-language"
+    )
     ?.addEventListener(
       "change",
       (event) => updateSetting(
@@ -443,17 +532,9 @@ function initializeSettings() {
     );
 
   document
-    .querySelector("#select-palette")
-    ?.addEventListener(
-      "change",
-      (event) => updateSetting(
-        "palette",
-        event.target.value
-      )
-    );
-
-  document
-    .querySelector("#select-currency")
+    .querySelector(
+      "#select-currency"
+    )
     ?.addEventListener(
       "change",
       (event) => updateSetting(
@@ -512,14 +593,19 @@ function initializeSettings() {
     ?.addEventListener(
       "change",
       async (event) => {
-        const [file] = event.target.files;
+        const [file] =
+          event.target.files;
+
         await importBackupFile(file);
+
         event.target.value = "";
       }
     );
 
   document
-    .querySelector("#clear-data-button")
+    .querySelector(
+      "#clear-data-button"
+    )
     ?.addEventListener(
       "click",
       clearStoredApplicationData

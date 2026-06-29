@@ -1,0 +1,51 @@
+:root {
+  /* Colores base */
+  --page-background: #08090a;
+  --surface: #131517;
+  --surface-secondary: #202326;
+  --input-background: #0d0f10;
+
+  --text-primary: #ffffff;
+  --text-secondary: #b8bec4;
+
+  --accent: #d10082;
+  --accent-light: #ff4db8;
+  --accent-dark: #94005d;
+  --accent-soft: rgba(209, 0, 130, 0.15);
+
+  --border: rgba(255, 255, 255, 0.11);
+
+  --success: #bcf5cf;
+  --danger: #ffb4b4;
+  --danger-soft: rgba(181, 39, 39, 0.18);
+
+  --header-text: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.32);
+  --focus-ring: rgba(255, 77, 184, 0.18);
+
+  /* Forma */
+  --panel-radius: 20px;
+  --control-radius: 11px;
+  --small-radius: 10px;
+  --panel-border-width: 1px;
+
+  /* Sombras */
+  --panel-shadow:
+    0 18px 44px var(--shadow-color);
+
+  /* Tipografía */
+  --font-ui:
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  --font-display:
+    "Bahnschrift",
+    "Arial Narrow",
+    "Segoe UI",
+    sans-serif;
+
+  /* Animaciones */
+  --transition-speed: 150ms;
+  --transition-function: ease;
+}
